@@ -513,7 +513,11 @@ function init() {
             renderDaySelector();
             renderTimeline();
             renderProfiles();
-            profiles.forEach(p => { askedQuestions[p.id] = {}; });
+            profiles.forEach(p => { askedQuestions[p.id] = {}; }); 
+// Zeige LiveChat für Tag 1 nach kurzem Delay
+    setTimeout(() => {
+        showLiveChat(1);
+    }, 1000);
         }
 
         function renderDaySelector() {
@@ -794,8 +798,19 @@ function init() {
         }
 
         function continueAfterFlip() {
-            // Nach Situations-Flip kommt Communication Minigame an Tag 4
-            showCommunicationMinigame(4);
+ // Nach Drag & Drop: Zurück zur Timeline, dann weiter
+    const container = document.querySelector('.container');
+    container.innerHTML = ''; // Leere den Container
+    
+    renderDaySelector();
+    renderTimeline();
+    updateNextDayButton();
+    window.scrollTo(0, 0);
+    
+    // Dann erst Kommunikations-Quiz für Tag 4
+    setTimeout(() => {
+        showCommunicationMinigame(4);
+    }, 500);
         }
 
         // ==========================================
@@ -1001,7 +1016,49 @@ function init() {
         }
 
         function continueAfterComm() {
-            showLiveChat(currentDay);
+
+    // Zurück zur Timeline
+    const container = document.querySelector('.container');
+    
+    // Rendere die normale Ansicht wieder
+    container.innerHTML = `
+        <div class="mission-brief">
+            <div class="mission-title">🎪 Mission: Das Schulfest-Mysterium</div>
+            <div class="mission-text">
+                <strong>Szenario:</strong> Das große Schulfest steht in 2 Wochen an! Sechs Schüler*innen koordinieren das Event über 7 Tage hinweg. Doch du hast einen vertraulichen Hinweis: 
+                <em>Eine Person plant aus emotionalen Gründen, ihre Aufgaben kurz vor dem Fest hinzuschmeißen.</em>
+                <br><br>
+                <strong>Deine Aufgabe:</strong> Beobachte die Entwicklung über mehrere Tage. Analysiere Gruppendynamiken, subtile Warnsignale und emotionale Muster. Nicht alle Frustrationen sind gleich - wer ist wirklich am Limit?
+            </div>
+            <div class="day-selector" id="daySelector"></div>
+        </div>
+
+        <div id="timelineView" class="view active">
+            <div class="timeline" id="timeline"></div>
+            <button class="next-day-btn" id="nextDayBtn" style="display: none;" onclick="nextDay()">Nächster Tag →</button>
+        </div>
+
+        <div id="profilesView" class="view">
+            <div class="profiles-grid" id="profilesGrid"></div>
+        </div>
+
+        <div class="accusation-section" id="accusationSection">
+            <div class="accusation-title">🔍 Verdacht aussprechen</div>
+            <div class="selected-suspect" id="selectedSuspect">Noch keine Person ausgewählt</div>
+            <button class="accuse-btn" id="accuseBtn" disabled onclick="makeAccusation()">Diese Person wird ihre Aufgaben hinschmeißen!</button>
+        </div>
+    `;
+    
+    renderDaySelector();
+    renderTimeline();
+    renderProfiles();
+    updateNextDayButton();
+    window.scrollTo(0, 0);
+    
+    // Dann LiveChat anzeigen
+    setTimeout(() => {
+        showLiveChat(currentDay);
+    }, 500);
         }
 
         function updateNextDayButton() {
