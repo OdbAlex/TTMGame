@@ -535,15 +535,13 @@ function init() {
         }
 
        function nextDay() {
- if (currentDay < 7) {
-        currentDay++;
+if (currentDay < 7) {
+        currentDay++;  // Das hier erhöht den Tag!
         completedDays[currentDay - 1] = true;
         renderDaySelector();
         renderTimeline();
         updateNextDayButton();
         window.scrollTo(0, 0);
-        
-        // KEINE automatischen Popups mehr!
     } else {
         document.getElementById('accusationSection').style.display = 'block';
         document.getElementById('nextDayBtn').style.display = 'none';
@@ -1694,11 +1692,15 @@ Sei warmherzig und lehrreich, aber ehrlich. Keine Auflistungen oder Struktur-Mar
         }
 
         function closeLiveChat() {
-            if (chatTimeout) {
-                clearTimeout(chatTimeout);
-            }
-            document.getElementById('liveChatModal').classList.remove('active');
-            pendingDayTransition = false;
+    // Schließe Modal
+    if (chatTimeout) {
+        clearTimeout(chatTimeout);
+    }
+    document.getElementById('liveChatModal').classList.remove('active');
+    pendingDayTransition = false;
+    
+    // Gehe zum nächsten Tag (erhöht currentDay automatisch)
+    nextDay();
         }
 
         function continueToDayAfterChat() {
