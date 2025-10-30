@@ -509,15 +509,13 @@ Deine Notizen werden automatisch gespeichert..." oninput="saveNotes()"></textare
         
 
 function init() {
-            loadNotes();
-            renderDaySelector();
-            renderTimeline();
-            renderProfiles();
-            profiles.forEach(p => { askedQuestions[p.id] = {}; }); 
-// Zeige LiveChat für Tag 1 nach kurzem Delay
-    setTimeout(() => {
-        showLiveChat(1);
-    }, 1000);
+               loadNotes();
+    renderDaySelector();
+    renderTimeline();
+    renderProfiles();
+    profiles.forEach(p => { askedQuestions[p.id] = {}; });
+    
+    // KEINE automatischen Popups!
         }
 
         function renderDaySelector() {
@@ -537,7 +535,7 @@ function init() {
         }
 
        function nextDay() {
-    if (currentDay < 7) {
+ if (currentDay < 7) {
         currentDay++;
         completedDays[currentDay - 1] = true;
         renderDaySelector();
@@ -545,19 +543,7 @@ function init() {
         updateNextDayButton();
         window.scrollTo(0, 0);
         
-        // Kurze Verzögerung, damit User die Timeline sehen kann
-        setTimeout(() => {
-            // Entscheide ob Minigame oder LiveChat
-            if (currentDay === 3) {
-                showSituationsFlipMinigame();
-            } else if (currentDay === 4) {
-                showCommunicationMinigame(4);
-            } else if (currentDay === 6) {
-                showCommunicationMinigame(6);
-            } else {
-                showLiveChat(currentDay);
-            }
-        }, 500);
+        // KEINE automatischen Popups mehr!
     } else {
         document.getElementById('accusationSection').style.display = 'block';
         document.getElementById('nextDayBtn').style.display = 'none';
@@ -798,19 +784,47 @@ function init() {
         }
 
         function continueAfterFlip() {
- // Nach Drag & Drop: Zurück zur Timeline, dann weiter
+// Zurück zur Timeline, Button zeigt jetzt Kommunikations-Übung
     const container = document.querySelector('.container');
-    container.innerHTML = ''; // Leere den Container
+    container.innerHTML = `
+        <div class="mission-brief">
+            <div class="mission-title">🎪 Mission: Das Schulfest-Mysterium</div>
+            <div class="mission-text">
+                <strong>Szenario:</strong> Das große Schulfest steht in 2 Wochen an! Sechs Schüler*innen koordinieren das Event über 7 Tage hinweg. Doch du hast einen vertraulichen Hinweis: 
+                <em>Eine Person plant aus emotionalen Gründen, ihre Aufgaben kurz vor dem Fest hinzuschmeißen.</em>
+                <br><br>
+                <strong>Deine Aufgabe:</strong> Beobachte die Entwicklung über mehrere Tage. Analysiere Gruppendynamiken, subtile Warnsignale und emotionale Muster. Nicht alle Frustrationen sind gleich - wer ist wirklich am Limit?
+            </div>
+            <div class="day-selector" id="daySelector"></div>
+        </div>
+
+        <div id="timelineView" class="view active">
+            <div class="timeline" id="timeline"></div>
+            <button class="next-day-btn" id="nextDayBtn" style="display: none;" onclick="nextDay()">Nächster Tag →</button>
+        </div>
+
+        <div id="profilesView" class="view">
+            <div class="profiles-grid" id="profilesGrid"></div>
+        </div>
+
+        <div class="accusation-section" id="accusationSection" style="display: none;">
+            <div class="accusation-title">🔍 Verdacht aussprechen</div>
+            <div class="selected-suspect" id="selectedSuspect">Noch keine Person ausgewählt</div>
+            <button class="accuse-btn" id="accuseBtn" disabled onclick="makeAccusation()">Diese Person wird ihre Aufgaben hinschmeißen!</button>
+        </div>
+    `;
     
     renderDaySelector();
     renderTimeline();
+    renderProfiles();
     updateNextDayButton();
-    window.scrollTo(0, 0);
     
-    // Dann erst Kommunikations-Quiz für Tag 4
-    setTimeout(() => {
-        showCommunicationMinigame(4);
-    }, 500);
+    // Button zeigt jetzt "Kommunikations-Übung starten"
+    const btn = document.getElementById('nextDayBtn');
+    btn.textContent = '💬 Kommunikations-Übung starten →';
+    btn.onclick = () => showCommunicationMinigame(4);
+    
+    window.scrollTo(0, 0);
         }
 
         // ==========================================
@@ -1017,10 +1031,8 @@ function init() {
 
         function continueAfterComm() {
 
-    // Zurück zur Timeline
+     // Schließe das Modal und zeige Gruppenchat
     const container = document.querySelector('.container');
-    
-    // Rendere die normale Ansicht wieder
     container.innerHTML = `
         <div class="mission-brief">
             <div class="mission-title">🎪 Mission: Das Schulfest-Mysterium</div>
@@ -1042,7 +1054,7 @@ function init() {
             <div class="profiles-grid" id="profilesGrid"></div>
         </div>
 
-        <div class="accusation-section" id="accusationSection">
+        <div class="accusation-section" id="accusationSection" style="display: none;">
             <div class="accusation-title">🔍 Verdacht aussprechen</div>
             <div class="selected-suspect" id="selectedSuspect">Noch keine Person ausgewählt</div>
             <button class="accuse-btn" id="accuseBtn" disabled onclick="makeAccusation()">Diese Person wird ihre Aufgaben hinschmeißen!</button>
@@ -1053,28 +1065,39 @@ function init() {
     renderTimeline();
     renderProfiles();
     updateNextDayButton();
-    window.scrollTo(0, 0);
     
-    // Dann LiveChat anzeigen
-    setTimeout(() => {
-        showLiveChat(currentDay);
-    }, 500);
+    // Button zeigt jetzt "Gruppenchat öffnen"
+    const btn = document.getElementById('nextDayBtn');
+    btn.textContent = '💬 Gruppenchat öffnen →';
+    btn.onclick = () => showLiveChat(currentDay);
+    
+    window.scrollTo(0, 0);
         }
 
         function updateNextDayButton() {
             const btn = document.getElementById('nextDayBtn');
-            btn.style.display = 'block';
-            if (currentDay === 7) {
-                btn.textContent = 'Verdacht aussprechen →';
-                btn.onclick = () => {
-                    document.getElementById('accusationSection').style.display = 'block';
-                    btn.style.display = 'none';
-                    window.scrollTo(0, document.body.scrollHeight);
-                };
-            } else {
-                btn.textContent = 'Nächster Tag →';
-                btn.onclick = nextDay;
-            }
+    btn.style.display = 'block';
+    
+    if (currentDay === 7) {
+        btn.textContent = 'Verdacht aussprechen →';
+        btn.onclick = () => {
+            document.getElementById('accusationSection').style.display = 'block';
+            btn.style.display = 'none';
+            window.scrollTo(0, document.body.scrollHeight);
+        };
+    } else {
+        // Prüfe ob dieser Tag ein Minigame hat
+        if (currentDay === 3) {
+            btn.textContent = '🎭 Perspektiv-Flip starten →';
+            btn.onclick = () => showSituationsFlipMinigame();
+        } else if (currentDay === 4 || currentDay === 6) {
+            btn.textContent = '💬 Kommunikations-Übung starten →';
+            btn.onclick = () => showCommunicationMinigame(currentDay);
+        } else {
+            btn.textContent = '💬 Gruppenchat öffnen →';
+            btn.onclick = () => showLiveChat(currentDay);
+        }
+    }
         }
 
         function switchView(view) {
