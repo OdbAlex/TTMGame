@@ -535,9 +535,9 @@ function init() {
         }
 
        function nextDay() {
-if (currentDay < 7) {
-        currentDay++;  // Das hier erhöht den Tag!
-        completedDays[currentDay - 1] = true;
+ if (currentDay < 7) {
+        currentDay++;
+        completedDays.push(currentDay - 1);
         renderDaySelector();
         renderTimeline();
         updateNextDayButton();
@@ -1704,9 +1704,12 @@ Sei warmherzig und lehrreich, aber ehrlich. Keine Auflistungen oder Struktur-Mar
         }
 
         function continueToDayAfterChat() {
-            closeLiveChat();
+           if (chatTimeout) {
+        clearTimeout(chatTimeout);
+    }
+    document.getElementById('liveChatModal').classList.remove('active');
     
-    // Gehe zum nächsten Tag
+    // Nutze die existierende nextDay Funktion
     nextDay();
         }
 
