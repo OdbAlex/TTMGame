@@ -532,31 +532,33 @@ function init() {
             updateNextDayButton();
         }
 
-        function nextDay() {
-            if (currentDay < 7) {
-                currentDay++;
-                completedDays[currentDay - 1] = true;
-                renderDaySelector();
-                
-                // Entscheide ob Minigame oder LiveChat
-                if (currentDay === 3) {
-                    // Tag 3: Situations-Flip Minigame
-                    showSituationsFlipMinigame();
-                } else if (currentDay === 4) {
-                    // Tag 4: Communication Minigame
-                    showCommunicationMinigame(4);
-                } else if (currentDay === 6) {
-                    // Tag 6: Communication Minigame
-                    showCommunicationMinigame(6);
-                } else {
-                    // Alle anderen Tage: LiveChat anzeigen
-                    showLiveChat(currentDay);
-                }
+       function nextDay() {
+    if (currentDay < 7) {
+        currentDay++;
+        completedDays[currentDay - 1] = true;
+        renderDaySelector();
+        renderTimeline();
+        updateNextDayButton();
+        window.scrollTo(0, 0);
+        
+        // Kurze Verzögerung, damit User die Timeline sehen kann
+        setTimeout(() => {
+            // Entscheide ob Minigame oder LiveChat
+            if (currentDay === 3) {
+                showSituationsFlipMinigame();
+            } else if (currentDay === 4) {
+                showCommunicationMinigame(4);
+            } else if (currentDay === 6) {
+                showCommunicationMinigame(6);
             } else {
-                document.getElementById('accusationSection').style.display = 'block';
-                document.getElementById('nextDayBtn').style.display = 'none';
+                showLiveChat(currentDay);
             }
-        }
+        }, 500);
+    } else {
+        document.getElementById('accusationSection').style.display = 'block';
+        document.getElementById('nextDayBtn').style.display = 'none';
+    }
+}
 
 
         // ==========================================
@@ -793,7 +795,7 @@ function init() {
 
         function continueAfterFlip() {
             // Nach Situations-Flip kommt Communication Minigame an Tag 4
-            showCommunicationMinigame(currentDay + 1);
+            showCommunicationMinigame(4);
         }
 
         // ==========================================
