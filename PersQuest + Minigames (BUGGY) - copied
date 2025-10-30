@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PerspectiveQuest - Das Schulfest-Mysterium</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fafafa; color: #262626; }
+        .ig-header { background: white; border-bottom: 1px solid #dbdbdb; padding: 15px 20px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        .ig-logo { font-family: 'Brush Script MT', cursive; font-size: 28px; color: #262626; }
+        .nav-tabs { display: flex; gap: 20px; }
+        .nav-tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; background: transparent; border: none; font-size: 14px; color: #262626; }
+        .nav-tab.active { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); color: white; }
+        .mission-badge { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; }
+        .container { max-width: 1200px; margin: 80px auto 20px; padding: 0 20px; }
+        .mission-brief { background: white; border: 1px solid #dbdbdb; border-radius: 8px; padding: 20px; margin-bottom: 30px; }
+        .mission-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; color: #8134af; }
+        .mission-text { line-height: 1.6; color: #262626; margin-bottom: 15px; }
+        .day-selector { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .day-btn { padding: 10px 20px; border: 2px solid #dbdbdb; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; }
+        .day-btn.active { background: #8134af; color: white; border-color: #8134af; }
+        .day-btn.completed { background: #4CAF50; color: white; border-color: #4CAF50; }
+        .day-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .view { display: none; }
+        .view.active { display: block; }
+        .timeline { max-width: 600px; margin: 0 auto; }
+        .timeline-post { background: white; border: 1px solid #dbdbdb; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+        .post-header { padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+        .post-avatar { width: 40px; height: 40px; border-radius: 50%; }
+        .post-user-info { flex: 1; }
+        .post-username { font-weight: 600; font-size: 14px; }
+        .post-time { font-size: 12px; color: #8e8e8e; }
+        .post-image-container { width: 100%; aspect-ratio: 1; overflow: hidden; }
+        .post-image { width: 100%; height: 100%; object-fit: cover; }
+        .post-actions { padding: 12px 16px; display: flex; gap: 16px; }
+        .action-btn { background: none; border: none; font-size: 24px; cursor: pointer; transition: all 0.3s; }
+        .action-btn.flagged { color: #ed4956; transform: scale(1.2); }
+        .action-btn:hover { transform: scale(1.1); }
+        .likes-section { padding: 0 16px 8px; }
+        .likes-text { font-size: 14px; font-weight: 600; }
+        .post-caption { padding: 0 16px 8px; }
+        .caption-username { font-weight: 600; margin-right: 6px; }
+        .comments-section { padding: 0 16px 16px; }
+        .comment { margin-bottom: 8px; font-size: 14px; }
+        .comment-username { font-weight: 600; margin-right: 6px; }
+        .profiles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 30px; }
+        .profile-card { background: white; border: 1px solid #dbdbdb; border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s; }
+        .profile-card:hover { transform: translateY(-5px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .profile-card.selected { border: 3px solid #8134af; box-shadow: 0 0 0 2px rgba(129, 52, 175, 0.2); }
+        .profile-header { padding: 24px; display: flex; gap: 20px; align-items: center; }
+        .profile-avatar-large { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #dbdbdb; }
+        .profile-info { flex: 1; }
+        .profile-username { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+        .profile-name { font-size: 13px; margin-bottom: 8px; }
+        .profile-role { font-size: 12px; color: #8134af; font-weight: 600; background: rgba(129, 52, 175, 0.1); padding: 4px 10px; border-radius: 12px; display: inline-block; }
+        .profile-stats { display: flex; justify-content: space-around; padding: 12px; border-top: 1px solid #efefef; border-bottom: 1px solid #efefef; }
+        .stat { text-align: center; }
+        .stat-number { font-weight: 700; font-size: 14px; }
+        .stat-label { font-size: 11px; color: #8e8e8e; margin-top: 2px; }
+        .profile-bio-section { padding: 12px 20px; }
+        .profile-bio { font-size: 13px; line-height: 1.4; }
+        .view-profile-btn { background: #0095f6; color: white; border: none; padding: 10px; font-weight: 600; font-size: 13px; cursor: pointer; width: 100%; }
+        .view-profile-btn:hover { background: #1877f2; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000; padding: 20px; overflow-y: auto; }
+        .modal.active { display: flex; justify-content: center; align-items: flex-start; }
+        .modal-content { background: white; border-radius: 12px; max-width: 1000px; width: 100%; margin: 40px auto; overflow: hidden; }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid #dbdbdb; display: flex; justify-content: space-between; align-items: center; }
+        .close-modal { font-size: 32px; cursor: pointer; background: none; border: none; }
+        .modal-body { display: grid; grid-template-columns: 1fr 400px; }
+        .posts-section { border-right: 1px solid #dbdbdb; max-height: 600px; overflow-y: auto; padding: 20px; }
+        .post-detail { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #efefef; }
+        .post-detail:last-child { border-bottom: none; }
+        .post-detail-image-container { width: 100%; aspect-ratio: 1; border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+        .post-detail-image { width: 100%; height: 100%; object-fit: cover; }
+        .post-caption-detail { font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
+        .post-time-detail { font-size: 12px; color: #8e8e8e; }
+        .chat-section { display: flex; flex-direction: column; max-height: 600px; background: #fafafa; }
+        .chat-header { padding: 16px 20px; border-bottom: 1px solid #dbdbdb; font-weight: 600; background: white; }
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; }
+        .message { margin-bottom: 16px; }
+        .message.user { text-align: right; }
+        .message-bubble { display: inline-block; padding: 12px 16px; border-radius: 20px; max-width: 80%; font-size: 14px; }
+        .message.other .message-bubble { background: white; border: 1px solid #dbdbdb; }
+        .message.user .message-bubble { background: #0095f6; color: white; }
+        .chat-questions { padding: 16px 20px; border-top: 1px solid #dbdbdb; background: white; }
+        .question-title { font-size: 12px; font-weight: 600; color: #8e8e8e; margin-bottom: 12px; text-transform: uppercase; }
+        .question-btn { display: block; width: 100%; background: white; border: 1px solid #dbdbdb; padding: 12px; border-radius: 8px; text-align: left; font-size: 13px; cursor: pointer; margin-bottom: 8px; }
+        .question-btn:hover:not(:disabled) { background: #f5f5f5; border-color: #8134af; }
+        .question-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
+        .accusation-section { background: white; border: 1px solid #dbdbdb; border-radius: 8px; padding: 24px; text-align: center; }
+        .accusation-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+        .selected-suspect { margin: 20px 0; padding: 16px; background: #f0f0f0; border-radius: 8px; font-size: 16px; }
+        .accuse-btn { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .accuse-btn:hover:not(:disabled) { transform: scale(1.05); }
+        .accuse-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .quiz-container { background: white; border: 1px solid #dbdbdb; border-radius: 8px; padding: 30px; margin-bottom: 20px; }
+        .quiz-question { margin-bottom: 30px; }
+        .quiz-question-text { font-size: 16px; font-weight: 600; margin-bottom: 16px; line-height: 1.5; }
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; }
+        .quiz-option { padding: 14px 18px; border: 2px solid #dbdbdb; border-radius: 8px; background: white; cursor: pointer; text-align: left; font-size: 14px; }
+        .quiz-option:hover { border-color: #8134af; background: #f5f5f5; }
+        .quiz-option.selected { border-color: #8134af; background: rgba(129, 52, 175, 0.1); }
+        .quiz-scale { display: flex; gap: 8px; margin: 10px 0; }
+        .scale-btn { flex: 1; padding: 12px; border: 2px solid #dbdbdb; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; }
+        .scale-btn:hover { border-color: #8134af; }
+        .scale-btn.selected { background: #8134af; color: white; border-color: #8134af; }
+        .scale-labels { display: flex; justify-content: space-between; font-size: 12px; color: #8e8e8e; margin-top: 8px; }
+        .textarea-input { width: 100%; min-height: 100px; padding: 12px; border: 2px solid #dbdbdb; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical; }
+        .textarea-input:focus { outline: none; border-color: #8134af; }
+        .next-day-btn { background: #4CAF50; color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 20px auto; display: block; }
+        .next-day-btn:hover { background: #45a049; }
+        
+        .notes-button { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); border: none; color: white; font-size: 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1500; }
+        .notes-button:hover { transform: scale(1.1); }
+        .notes-panel { position: fixed; right: -400px; top: 80px; width: 380px; height: calc(100vh - 100px); background: white; border-left: 1px solid #dbdbdb; box-shadow: -4px 0 12px rgba(0,0,0,0.1); z-index: 1500; transition: right 0.3s; display: flex; flex-direction: column; }
+        .notes-panel.open { right: 0; }
+        .notes-header { padding: 20px; border-bottom: 2px solid #8134af; background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); color: white; position: relative; }
+        .notes-header h3 { margin: 0; font-size: 20px; }
+        .notes-header p { margin: 5px 0 0 0; font-size: 12px; opacity: 0.9; }
+        .notes-content { flex: 1; padding: 20px; overflow-y: auto; }
+        .note-textarea { width: 100%; min-height: 200px; padding: 12px; border: 2px solid #dbdbdb; border-radius: 8px; font-family: inherit; font-size: 14px; resize: vertical; margin-bottom: 15px; }
+        .note-textarea:focus { outline: none; border-color: #8134af; }
+        .notes-saved { background: #E8F5E9; padding: 10px 15px; border-radius: 6px; color: #2E7D32; font-size: 13px; display: none; margin-bottom: 15px; }
+        .notes-saved.show { display: block; }
+        .notes-tips { background: #FFF3E0; padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.6; color: #E65100; }
+        .close-notes { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 24px; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+
+
+
+        @media (max-width: 768px) {
+            .modal-body { grid-template-columns: 1fr; }
+            .posts-section { border-right: none; border-bottom: 1px solid #dbdbdb; max-height: 400px; }
+            .day-selector { justify-content: center; }
+            .notes-panel { width: 100%; right: -100%; }
+            .notes-button { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 24px; }
+        }
+
+
+        .action-btn.liked { color: #ed4956; }
+        .likes-list { font-size: 13px; color: #262626; margin-top: 4px; }
+        .likes-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 3500; width: 400px; max-width: 90%; }
+        .likes-modal.active { display: block; }
+        .likes-modal-header { padding: 16px 20px; border-bottom: 1px solid #dbdbdb; font-weight: 600; text-align: center; position: relative; }
+        .likes-modal-close { position: absolute; right: 15px; top: 15px; background: none; border: none; font-size: 24px; cursor: pointer; }
+        .likes-modal-content { padding: 20px; max-height: 300px; overflow-y: auto; }
+        .like-user { padding: 12px 0; display: flex; align-items: center; gap: 12px; }
+        .like-user-avatar { width: 32px; height: 32px; border-radius: 50%; }
+        .like-user-name { font-weight: 600; font-size: 14px; }
+        /* Live Group Chat Styles */
+        .live-chat-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 3000; padding: 20px; overflow-y: auto; }
+        .live-chat-modal.active { display: flex; justify-content: center; align-items: center; }
+        .live-chat-container { background: white; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .live-chat-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; display: flex; align-items: center; gap: 15px; position: relative; }
+        .live-chat-header-icon { font-size: 28px; }
+        .live-chat-header-info h3 { font-size: 18px; margin-bottom: 4px; }
+        .live-chat-header-info p { font-size: 13px; opacity: 0.9; }
+        .close-live-chat { position: absolute; right: 20px; top: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 28px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .close-live-chat:hover { background: rgba(255,255,255,0.3); }
+        .live-chat-messages { flex: 1; padding: 20px; overflow-y: auto; background: #f5f7fb; min-height: 400px; max-height: 500px; }
+        .live-chat-message { display: flex; gap: 12px; margin-bottom: 20px; opacity: 0; transform: translateY(10px); animation: messageAppear 0.3s ease forwards; }
+        @keyframes messageAppear { to { opacity: 1; transform: translateY(0); } }
+        .live-chat-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; color: white; flex-shrink: 0; }
+        .live-chat-message-content { flex: 1; }
+        .live-chat-message-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+        .live-chat-username { font-weight: 600; font-size: 14px; color: #2d3748; }
+        .live-chat-timestamp { font-size: 11px; color: #a0aec0; }
+        .live-chat-bubble { background: white; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5; color: #2d3748; box-shadow: 0 1px 2px rgba(0,0,0,0.05); word-wrap: break-word; }
+        .live-typing-indicator { display: flex; gap: 12px; margin-bottom: 20px; opacity: 0; animation: messageAppear 0.3s ease forwards; }
+        .live-typing-bubble { background: white; padding: 16px 20px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .live-typing-dots { display: flex; gap: 4px; }
+        .live-typing-dots span { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e0; animation: typingDot 1.4s infinite; }
+        .live-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .live-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingDot { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-8px); opacity: 1; } }
+        @keyframes loading { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+        .live-chat-date-divider { text-align: center; margin: 30px 0 20px; }
+        .live-chat-date-divider span { background: #e2e8f0; color: #718096; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .live-chat-system-message { text-align: center; margin: 20px 0; opacity: 0; animation: messageAppear 0.3s ease forwards; }
+        .live-chat-system-message span { background: #e2e8f0; color: #4a5568; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-style: italic; }
+        .live-chat-footer { padding: 20px; background: white; border-top: 1px solid #e2e8f0; text-align: center; }
+        .continue-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .continue-btn:hover { transform: scale(1.05); }
+        .avatar-mia { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .avatar-leon { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .avatar-jonas { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .avatar-emma { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+        .avatar-sarah { background: linear-gradient(135deg, #fa709a, #fee140); }
+    </style>
+</head>
+<body>
+    <div class="ig-header">
+        <div class="ig-logo">PerspectiveQuest</div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchView('timeline')">📰 Timeline</button>
+            <button class="nav-tab" onclick="switchView('profiles')">👥 Profile</button>
+        </div>
+        <div class="mission-badge">🎯 Aktive Mission</div>
+    </div>
+
+    <button class="notes-button" onclick="toggleNotes()" title="Notizen">📝</button>
+    
+    <div class="notes-panel" id="notesPanel">
+        <div class="notes-header">
+            <button class="close-notes" onclick="toggleNotes()">×</button>
+            <h3>🔍 Deine Notizen</h3>
+            <p>Halte Beobachtungen und Verdachtsmomente fest</p>
+        </div>
+        <div class="notes-content">
+            <div class="notes-saved" id="notesSaved">✓ Notizen gespeichert!</div>
+            <textarea class="note-textarea" id="notesTextarea" placeholder="Was fällt dir auf?
+- Welche Warnsignale siehst du?
+- Wer verhält sich ungewöhnlich?
+- Welche Muster erkennst du?
+
+Deine Notizen werden automatisch gespeichert..." oninput="saveNotes()"></textarea>
+            <div class="notes-tips">
+                <strong>💡 Tipp:</strong> Achte auf:
+                <br>• Veränderungen in Posts über die Tage
+                <br>• Abnehmende Likes/Kommentare
+                <br>• Emotionale Sprache
+                <br>• Visuelle Signale (Emojis, Farben, Bildwahl)
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="mission-brief">
+            <div class="mission-title">🎪 Mission: Das Schulfest-Mysterium</div>
+            <div class="mission-text">
+                <strong>Szenario:</strong> Das große Schulfest steht in 2 Wochen an! Sechs Schüler*innen koordinieren das Event über 7 Tage hinweg. Doch du hast einen vertraulichen Hinweis: 
+                <em>Eine Person plant aus emotionalen Gründen, ihre Aufgaben kurz vor dem Fest hinzuschmeißen.</em>
+                <br><br>
+                <strong>Deine Aufgabe:</strong> Beobachte die Entwicklung über mehrere Tage. Analysiere Gruppendynamiken, subtile Warnsignale und emotionale Muster. Nicht alle Frustrationen sind gleich - wer ist wirklich am Limit?
+            </div>
+            <div class="day-selector" id="daySelector"></div>
+        </div>
+
+        <div id="timelineView" class="view active">
+            <div class="timeline" id="timeline"></div>
+            <button class="next-day-btn" id="nextDayBtn" style="display: none;" onclick="nextDay()">Nächster Tag →</button>
+        </div>
+
+        <div id="profilesView" class="view">
+            <div class="profiles-grid" id="profilesGrid"></div>
+        </div>
+
+        <div class="accusation-section" id="accusationSection">
+            <div class="accusation-title">🔍 Verdacht aussprechen</div>
+            <div class="selected-suspect" id="selectedSuspect">Noch keine Person ausgewählt</div>
+            <button class="accuse-btn" id="accuseBtn" disabled onclick="makeAccusation()">Diese Person wird ihre Aufgaben hinschmeißen!</button>
+        </div>
+    </div>
+
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalUsername">Profil</h2>
+                <button class="close-modal" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="posts-section" id="postsSection"></div>
+                <div class="chat-section">
+                    <div class="chat-header">💬 Direktnachrichten</div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-questions">
+                        <div class="question-title">Vorgefertigte Fragen:</div>
+                        <div id="questionButtons"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+        // Notizfunktion
+        function toggleNotes() {
+            document.getElementById('notesPanel').classList.toggle('open');
+        }
+
+        function saveNotes() {
+            const notes = document.getElementById('notesTextarea').value;
+            localStorage.setItem('perspectivequest_notes', notes);
+            const saved = document.getElementById('notesSaved');
+            saved.classList.add('show');
+            setTimeout(() => saved.classList.remove('show'), 2000);
+        }
+
+        function loadNotes() {
+            const notes = localStorage.getItem('perspectivequest_notes');
+            if (notes) {
+                document.getElementById('notesTextarea').value = notes;
+            }
+        }
+
+        const profiles = [
+            {
+                id: 1,
+                username: "mia_kreativ",
+                name: "Mia Chen",
+                role: "Catering-Organisation",
+                avatar: "data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='60' fill='%23FFE4E1'/%3E%3Cellipse cx='60' cy='65' rx='35' ry='40' fill='%23F4C2A7'/%3E%3Cellipse cx='60' cy='45' rx='38' ry='30' fill='%234A2C2A'/%3E%3Cellipse cx='48' cy='65' rx='3' ry='5' fill='%23000'/%3E%3Cellipse cx='72' cy='65' rx='3' ry='5' fill='%23000'/%3E%3C/svg%3E",
+                bio: "3. Semester Kunst & Design | Catering-Organisation | Perfektionistin ✨",
+                followers: 523,
+                following: 289,
+                posts: 147,
+                isCulprit: true,
+                postsByDay: {
+                    1: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF6B9D'/%3E%3Ctext x='400' y='420' font-size='120' text-anchor='middle' fill='white'%3E🍽️%3C/text%3E%3C/svg%3E", caption: "Erstes Team-Meeting! Catering-Organisation... bin gespannt aber auch nervös. Hoffentlich mache ich alles richtig 🤞", time: "8:30", likes: ["leon_technik", "sarah_foodie", "jonas_entertainer", "emma_social", "tim_orga"], comments: [{username: "sarah_foodie", text: "Du schaffst das! 😍"}, {username: "jonas_entertainer", text: "Let's goooo! 🔥"}]}],
+                    2: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF8C9D'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E📋%3C/text%3E%3C/svg%3E", caption: "Caterer-Anfragen verschickt... fühle mich unsicher. Was wenn ich was vergessen habe?", time: "15:20", likes: ["sarah_foodie", "leon_technik", "emma_social"], comments: [{username: "emma_social", text: "Klingt gut! 🎉"}]}],
+                    3: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23D4A5A5'/%3E%3Ctext x='400' y='420' font-size='90' text-anchor='middle' fill='white'%3E😰%3C/text%3E%3C/svg%3E", caption: "Die Präsentation heute war unangenehm. Tim hat vor allen mein Budget kritisiert. Ich wollte mich am liebsten verstecken.", time: "17:45", likes: ["sarah_foodie", "leon_technik"], comments: [{username: "tim_orga", text: "War doch konstruktiv! Ist doch normal dass wir diskutieren"}, {username: "mia_kreativ", text: "@tim_orga ...ja"}]}],
+                    4: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23A89090'/%3E%3Ctext x='400' y='420' font-size='85' text-anchor='middle' fill='white' opacity='0.8'%3E💭%3C/text%3E%3C/svg%3E", caption: "Denke immer noch über gestern nach. Was müssen alle jetzt von mir denken? Fühle mich beobachtet.", time: "20:15", likes: ["sarah_foodie"], comments: []}],
+                    5: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23808080'/%3E%3Ctext x='400' y='420' font-size='80' text-anchor='middle' fill='white' opacity='0.6'%3E🙊%3C/text%3E%3C/svg%3E", caption: "Heute lieber allein gearbeitet. Gruppentreffen wären gerade zu viel für mich.", time: "14:30", likes: ["leon_technik"], comments: []}],
+                    6: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23696969'/%3E%3Ctext x='400' y='420' font-size='75' text-anchor='middle' fill='white' opacity='0.5'%3E🫥%3C/text%3E%3C/svg%3E", caption: "Die Präsentation morgen macht mir Sorgen. Lieber wäre es mir, wenn das jemand anders übernimmt.", time: "19:00", likes: [], comments: [{username: "sarah_foodie", text: "Mia! Was ist los? 🫂"}]}],
+                    7: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23505050'/%3E%3Ctext x='400' y='420' font-size='70' text-anchor='middle' fill='white' opacity='0.4'%3E...%3C/text%3E%3C/svg%3E", caption: "Ich glaube ich kann das nicht. Die Angst vor der Präsentation ist zu groß.", time: "21:30", likes: [], comments: []}]
+                },
+                questionsByDay: {
+                    1: ["Wie fühlst du dich beim Start?", "Was sind deine Erwartungen?"],
+                    2: ["Wie läuft die Caterer-Suche?", "Fühlst du dich sicher bei der Aufgabe?"],
+                    3: ["Wie lief die Präsentation wirklich?", "Was denkst du über die Reaktionen?"],
+                    4: ["Denkst du noch über die Präsentation nach?", "Wie fühlst du dich im Team?"],
+                    5: ["Warum warst du heute nicht beim Treffen?", "Was hat sich geändert?"],
+                    6: ["Wie geht es dir?", "Brauchst du Unterstützung?"],
+                    7: ["Überlegst du aufzuhören?", "Was macht dir am meisten Sorgen?"]
+                },
+                responsesByDay: {
+                    1: ["Gut, aber auch nervös. Ich hoffe ich enttäusche niemanden.", "Ich will einfach alles richtig machen."],
+                    2: ["Läuft okay... ich checke alles dreifach, damit ich nichts übersehe.", "Manchmal fühle ich mich unsicher, ob ich das gut genug mache."],
+                    3: ["Es war unangenehm. Tim hat vor allen mein Budget kritisiert. Ich wusste nicht was ich sagen soll.", "Ich hätte mich am liebsten versteckt. Alle haben zugeschaut."],
+                    4: ["Ja, die ganze Zeit. Ich frage mich was alle jetzt denken.", "Ich fühle mich beobachtet. Als würden alle auf meine Fehler warten."],
+                    5: ["Ich... brauchte Abstand. Gruppensituationen sind gerade schwer für mich.", "Ich denke zu viel darüber nach, was andere denken könnten."],
+                    6: ["Nicht so gut. Die Präsentation morgen macht mir Angst.", "Ich würde lieber im Hintergrund bleiben. Vor allen zu sprechen fühlt sich überwältigend an."],
+                    7: ["Ja... ich glaube ich kann das nicht durchziehen.", "Die Angst davor zu versagen, vor allen zu stehen... es ist zu viel."]
+                }
+            },
+            {
+                id: 2,
+                username: "leon_technik",
+                name: "Leon Hoffmann",
+                role: "Technik-Team",
+                avatar: "data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='60' fill='%2387CEEB'/%3E%3Cellipse cx='60' cy='70' rx='32' ry='38' fill='%23E8B897'/%3E%3Crect x='25' y='58' width='70' height='8' rx='4' fill='%23333'/%3E%3C/svg%3E",
+                bio: "Informatik | Audio & Visual Tech | Problem Solver 🔧",
+                followers: 892,
+                following: 234,
+                posts: 203,
+                isCulprit: false,
+                postsByDay: {
+                    1: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%233B82F6'/%3E%3Ctext x='400' y='420' font-size='110' text-anchor='middle' fill='white'%3E💡%3C/text%3E%3C/svg%3E", caption: "Equipment-Check! Ready! 🔊", time: "9:00", likes: ["jonas_entertainer", "sarah_foodie", "mia_kreativ"], comments: [{username: "jonas_entertainer", text: "Super! Technik ist key 🔑"}, {username: "tim_orga", text: "Perfekt, danke für den Check!"}]}],
+                    2: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%234B0082'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E🎵%3C/text%3E%3C/svg%3E", caption: "Sound-Tests... Kabel hat Störung. Nervt. 😤", time: "16:00", likes: ["tim_orga"], comments: [{username: "jonas_entertainer", text: "Oh no! Kriegen wir das hin?"}, {username: "leon_technik", text: "Ja, finde eine Lösung!"}]}],
+                    3: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2320B2AA'/%3E%3Ctext x='400' y='420' font-size='90' text-anchor='middle' fill='white'%3E⚡%3C/text%3E%3C/svg%3E", caption: "Kabel-Problem gelöst! Neues Equipment bestellt. All good! 💪", time: "18:30", likes: ["sarah_foodie", "jonas_entertainer", "tim_orga"], comments: []}],
+                    4: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%231E90FF'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E✅%3C/text%3E%3C/svg%3E", caption: "Neues Kabel da! Tests perfekt! ✅", time: "15:45", likes: ["jonas_entertainer", "tim_orga"], comments: []}],
+                    5: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%234169E1'/%3E%3Ctext x='400' y='420' font-size='95' text-anchor='middle' fill='white'%3E🔧%3C/text%3E%3C/svg%3E", caption: "Licht-Setup perfektioniert! 💫", time: "17:20", likes: ["jonas_entertainer"], comments: []}],
+                    6: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%235F9EA0'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E🎬%3C/text%3E%3C/svg%3E", caption: "Final tests tomorrow! 🎯", time: "19:45", likes: ["tim_orga", "jonas_entertainer"], comments: []}],
+                    7: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2340E0D0'/%3E%3Ctext x='400' y='420' font-size='110' text-anchor='middle' fill='white'%3E🚀%3C/text%3E%3C/svg%3E", caption: "T-7! Tech 100% ready! 🚀", time: "10:00", likes: ["jonas_entertainer", "sarah_foodie", "tim_orga"], comments: []}]
+                },
+                questionsByDay: {
+                    1: ["Wie läuft die Planung?", "Bist du bereit?"],
+                    2: ["Was ist mit dem Kabel?"],
+                    3: ["Alles gelöst?"],
+                    7: ["Wirklich alles ready?"]
+                },
+                responsesByDay: {
+                    1: ["Gut! Equipment ist geprüft, Aufbau-Plan steht. Ich bin ready!", "Ja, hab alles durchgecheckt. Technik ist mein Ding 🔧"],
+                    2: ["Ärgerlich! Mitten in der Vorbereitung. Aber ich finde ne Lösung."],
+                    3: ["Ja! War nur nervig. Jetzt läuft's wieder."],
+                    7: ["100%! Das Kabel-Ding war nur ein Stolperstein."]
+                }
+            },
+            {
+                id: 3,
+                username: "sarah_foodie",
+                name: "Sarah Weber",
+                role: "Catering-Team",
+                avatar: "data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='60' fill='%23FFE4B5'/%3E%3Cellipse cx='60' cy='68' rx='34' ry='40' fill='%23F5D5C8'/%3E%3Cellipse cx='60' cy='48' rx='36' ry='32' fill='%238B4513'/%3E%3C/svg%3E",
+                bio: "Food-Lover 🍕 | Catering | Achte auf meine Freunde 💚",
+                followers: 1243,
+                following: 456,
+                posts: 312,
+                isCulprit: false,
+                postsByDay: {
+                    1: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF6347'/%3E%3Ctext x='400' y='420' font-size='120' text-anchor='middle' fill='white'%3E🍕%3C/text%3E%3C/svg%3E", caption: "Menü-Planung! Für alle was dabei 🌮", time: "10:30", likes: ["leon_technik", "jonas_entertainer", "mia_kreativ"], comments: [{username: "mia_kreativ", text: "Wow, das sieht lecker aus!"}, {username: "emma_social", text: "Perfekt für Social Media 📸"}]}],
+                    2: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2332CD32'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E📋%3C/text%3E%3C/svg%3E", caption: "Allergie-Check... einer vom Team antwortet nicht auf meine Nachricht 🤔", time: "14:00", likes: ["mia_kreativ", "leon_technik"], comments: [{username: "tim_orga", text: "Wichtig! Lass mich wissen wenn du Hilfe brauchst"}]}],
+                    3: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FFD700'/%3E%3Ctext x='400' y='420' font-size='95' text-anchor='middle' fill='white'%3E✅%3C/text%3E%3C/svg%3E", caption: "Antwort kam! Alles gecheckt! Lieferanten kontaktiert! 📞", time: "16:45", likes: ["tim_orga", "leon_technik", "mia_kreativ"], comments: []}],
+                    4: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF8C00'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E💭%3C/text%3E%3C/svg%3E", caption: "Mia, alles okay? Deine Posts machen mir Sorgen...", time: "21:00", likes: ["emma_social"], comments: []}],
+                    5: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%234CAF50'/%3E%3Ctext x='400' y='420' font-size='110' text-anchor='middle' fill='white'%3E✅%3C/text%3E%3C/svg%3E", caption: "Bestellungen finalisiert! Team ist amazing! 🙌", time: "15:30", likes: ["jonas_entertainer", "leon_technik", "tim_orga"], comments: []}],
+                    6: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2398FB98'/%3E%3Ctext x='400' y='420' font-size='105' text-anchor='middle' fill='white'%3E🫂%3C/text%3E%3C/svg%3E", caption: "Hatte Kaffee mit Mia. Sie geht's echt nicht gut...", time: "20:30", likes: ["emma_social"], comments: []}],
+                    7: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2390EE90'/%3E%3Ctext x='400' y='420' font-size='115' text-anchor='middle' fill='white'%3E🎉%3C/text%3E%3C/svg%3E", caption: "Catering ready! (Hoffe Mia ist okay...)", time: "11:00", likes: ["leon_technik", "jonas_entertainer", "tim_orga"], comments: []}]
+                },
+                questionsByDay: {
+                    1: ["Was ist dein Plan?", "Freust du dich?"],
+                    2: ["Wer antwortet nicht?"],
+                    4: ["Warum Sorgen um Mia?"],
+                    6: ["Was hat sie gesagt?"]
+                },
+                responsesByDay: {
+                    1: ["Ich plane das Menü für alle! Muss Allergien checken. Freue mich total!", "Ja! Ich liebe es, für andere zu kochen 🍕"],
+                    2: ["Ein Helfer. Aber hab's dann direkt geklärt."],
+                    4: ["Ihre Posts werden immer... dunkler? Sie wirkt traurig."],
+                    6: ["Sie fühlt sich nach der Präsentation inkompetent. Das Budget-Ding hat sie getroffen."]
+                }
+            },
+            {
+                id: 4,
+                username: "jonas_entertainer",
+                name: "Jonas Müller",
+                role: "Programm-Team",
+                avatar: "data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='60' fill='%23FFA500'/%3E%3Cellipse cx='60' cy='70' rx='36' ry='42' fill='%23D4A574'/%3E%3Cellipse cx='60' cy='44' rx='40' ry='30' fill='%232C1810'/%3E%3C/svg%3E",
+                bio: "MC & Moderator 🎤 | Always positive! ⚡",
+                followers: 1567,
+                following: 892,
+                posts: 289,
+                isCulprit: false,
+                postsByDay: {
+                    1: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF4500'/%3E%3Ctext x='400' y='420' font-size='120' text-anchor='middle' fill='white'%3E🎤%3C/text%3E%3C/svg%3E", caption: "Acts confirmed! Wird legendär! 🔥", time: "11:00", likes: ["leon_technik", "sarah_foodie", "mia_kreativ", "emma_social"], comments: [{username: "emma_social", text: "OMG so excited! 🎉"}, {username: "leon_technik", text: "Perfekt für die Bühne!"}]}],
+                    2: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF8C00'/%3E%3Ctext x='400' y='420' font-size='130' text-anchor='middle' fill='white'%3E⚡%3C/text%3E%3C/svg%3E", caption: "Proben laufen! Energy! ⚡", time: "17:30", likes: ["sarah_foodie", "leon_technik", "emma_social"], comments: []}],
+                    3: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23DC143C'/%3E%3Ctext x='400' y='420' font-size='125' text-anchor='middle' fill='white'%3E🎭%3C/text%3E%3C/svg%3E", caption: "Script fertig! Crowd wird hyped! 🔥", time: "19:15", likes: ["leon_technik", "sarah_foodie", "tim_orga"], comments: []}],
+                    4: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23B8860B'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E😕%3C/text%3E%3C/svg%3E", caption: "Headliner hat abgesagt... großes Problem.", time: "16:00", likes: ["tim_orga"], comments: [{username: "tim_orga", text: "Shit! Was jetzt?"}, {username: "jonas_entertainer", text: "Ich finde wen!"}]}],
+                    5: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF4500'/%3E%3Ctext x='400' y='420' font-size='130' text-anchor='middle' fill='white'%3E🎪%3C/text%3E%3C/svg%3E", caption: "NEUER Headliner confirmed! Sogar besser! Crisis averted! 🎪💪", time: "18:45", likes: ["emma_social", "sarah_foodie", "leon_technik", "tim_orga"], comments: [{username: "tim_orga", text: "Nice save!"}]}],
+                    6: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF8C00'/%3E%3Ctext x='400' y='420' font-size='140' text-anchor='middle' fill='white'%3E🚀%3C/text%3E%3C/svg%3E", caption: "Final rehearsal PERFEKT! 🚀", time: "21:00", likes: ["leon_technik", "sarah_foodie", "tim_orga"], comments: []}],
+                    7: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF1493'/%3E%3Ctext x='400' y='420' font-size='150' text-anchor='middle' fill='white'%3E🎉%3C/text%3E%3C/svg%3E", caption: "7 DAYS! LET'S GOOOO! 🎉🔥", time: "09:00", likes: ["all"], comments: []}]
+                },
+                questionsByDay: {
+                    1: ["Wie ist dein Line-up?", "Acts bestätigt?"],
+                    4: ["Headliner abgesagt?!"],
+                    5: ["Wie hast du das geschafft?"],
+                    7: ["Alles gut gegangen?"]
+                },
+                responsesByDay: {
+                    1: ["Super! Ich hab einige Acts bestätigt. Wird legendär!", "Ja, die meisten sind dabei. Noch ein paar finale Bestätigungen ausstehend 🎤"],
+                    4: ["Ja... war stressig. Aber aufgeben ist keine Option!"],
+                    5: ["Kontakte, Glück, Überzeugungskraft. Hab nicht geschlafen aber es hat geklappt!"],
+                    7: ["Ja! Solche Sachen passieren. Man muss nur schnell reagieren."]
+                }
+            },
+            {
+                id: 5,
+                username: "emma_social",
+                name: "Emma Klein",
+                role: "Social Media",
+                avatar: "data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='60' fill='%23FFB6C1'/%3E%3Cellipse cx='60' cy='66' rx='33' ry='39' fill='%23F5CBA7'/%3E%3Cellipse cx='60' cy='46' rx='37' ry='31' fill='%23C68642'/%3E%3C/svg%3E",
+                bio: "Social Media Lead 📱 | Content Creator ✨",
+                followers: 2103,
+                following: 1245,
+                posts: 487,
+                isCulprit: false,
+                postsByDay: {
+                    1: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF69B4'/%3E%3Ctext x='400' y='420' font-size='120' text-anchor='middle' fill='white'%3E📱%3C/text%3E%3C/svg%3E", caption: "Content-Plan! 📸", time: "12:00", likes: ["jonas_entertainer", "sarah_foodie", "mia_kreativ"], comments: [{username: "jonas_entertainer", text: "Let's grow that reach! 📈"}, {username: "sarah_foodie", text: "Kann nicht warten auf die Posts!"}]}],
+                    2: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23DA70D6'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E📸%3C/text%3E%3C/svg%3E", caption: "BTS Content! 💕", time: "15:45", likes: ["sarah_foodie", "jonas_entertainer"], comments: []}],
+                    3: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23BA55D3'/%3E%3Ctext x='400' y='420' font-size='110' text-anchor='middle' fill='white'%3E💬%3C/text%3E%3C/svg%3E", caption: "Engagement 📈", time: "18:30", likes: ["jonas_entertainer", "tim_orga"], comments: []}],
+                    4: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23C71585'/%3E%3Ctext x='400' y='420' font-size='95' text-anchor='middle' fill='white'%3E📉%3C/text%3E%3C/svg%3E", caption: "Hmm, Reichweite ist heute niedrig. Algorithmus nervt manchmal.", time: "14:15", likes: ["sarah_foodie"], comments: []}],
+                    5: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF69B4'/%3E%3Ctext x='400' y='420' font-size='115' text-anchor='middle' fill='white'%3E🎬%3C/text%3E%3C/svg%3E", caption: "Neuer Teaser dropped! Engagement wieder up! 🔥", time: "19:30", likes: ["jonas_entertainer", "leon_technik"], comments: []}],
+                    6: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF1493'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E📊%3C/text%3E%3C/svg%3E", caption: "1000+ Zusagen! ✨", time: "20:00", likes: ["tim_orga", "jonas_entertainer"], comments: []}],
+                    7: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FF69B4'/%3E%3Ctext x='400' y='420' font-size='120' text-anchor='middle' fill='white'%3E🚀%3C/text%3E%3C/svg%3E", caption: "Content ready! 🚀", time: "10:30", likes: ["jonas_entertainer", "sarah_foodie"], comments: []}]
+                },
+                questionsByDay: {
+                    1: ["Was postest du?", "Content-Strategie?"],
+                    4: ["Reichweiten-Problem?"],
+                    5: ["Alles wieder gut?"],
+                    7: ["Ready?"]
+                },
+                responsesByDay: {
+                    1: ["Ich starte mit Behind-the-Scenes! Zeige wie wir planen 📱", "Ja, plane Posts für jeden Tag. Mix aus Fotos und Stories!"],
+                    4: ["Ja, nervt. Aber passiert. Muss neuen Content probieren."],
+                    5: ["Ja! War nur temporär. Teaser kam super an!"],
+                    7: ["100%! Social Media läuft perfekt."]
+                }
+            },
+            {
+                id: 6,
+                username: "tim_orga",
+                name: "Tim Schmidt",
+                role: "Koordination",
+                avatar: "data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='60' fill='%2390EE90'/%3E%3Cellipse cx='60' cy='68' rx='34' ry='40' fill='%23E3C9A8'/%3E%3Cellipse cx='60' cy='47' rx='36' ry='29' fill='%23654321'/%3E%3C/svg%3E",
+                bio: "Gesamt-Koordination 📊 | Budget-Manager 💼",
+                followers: 678,
+                following: 423,
+                posts: 234,
+                isCulprit: false,
+                postsByDay: {
+                    1: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2332CD32'/%3E%3Ctext x='400' y='420' font-size='120' text-anchor='middle' fill='white'%3E📊%3C/text%3E%3C/svg%3E", caption: "Kickoff! Alle Teams briefed! 💪", time: "13:00", likes: ["sarah_foodie", "leon_technik", "jonas_entertainer"], comments: [{username: "leon_technik", text: "Guter Start! 👍"}, {username: "sarah_foodie", text: "Organisation on point!"}]}],
+                    2: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FFD700'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E📅%3C/text%3E%3C/svg%3E", caption: "Timeline tight aber machbar! ⏰", time: "16:30", likes: ["leon_technik", "sarah_foodie"], comments: []}],
+                    3: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23FFA500'/%3E%3Ctext x='400' y='420' font-size='95' text-anchor='middle' fill='white'%3E💭%3C/text%3E%3C/svg%3E", caption: "Schwierige Entscheidungen heute. Budget ist Challenge.", time: "18:00", likes: ["sarah_foodie"], comments: []}],
+                    4: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2398FB98'/%3E%3Ctext x='400' y='420' font-size='100' text-anchor='middle' fill='white'%3E📋%3C/text%3E%3C/svg%3E", caption: "Team-Check. Meistens on track!", time: "17:00", likes: ["leon_technik", "jonas_entertainer"], comments: []}],
+                    5: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2390EE90'/%3E%3Ctext x='400' y='420' font-size='105' text-anchor='middle' fill='white'%3E🎯%3C/text%3E%3C/svg%3E", caption: "Mid-point review gut!", time: "16:45", likes: ["sarah_foodie", "jonas_entertainer"], comments: []}],
+                    6: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%23228B22'/%3E%3Ctext x='400' y='420' font-size='95' text-anchor='middle' fill='white'%3E🤝%3C/text%3E%3C/svg%3E", caption: "Meeting mit allen. Kommunikation wichtig.", time: "21:15", likes: ["sarah_foodie"], comments: []}],
+                    7: [{image: "data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='800' height='800' fill='%2332CD32'/%3E%3Ctext x='400' y='420' font-size='110' text-anchor='middle' fill='white'%3E⏰%3C/text%3E%3C/svg%3E", caption: "Final countdown! All systems go! 🚀", time: "12:00", likes: ["all"], comments: []}]
+                },
+                questionsByDay: {
+                    1: ["Wie ist der Plan?", "Budget okay?"],
+                    3: ["Welche Entscheidungen?"],
+                    6: ["Wie war das Meeting?"],
+                    7: ["Alle Teams ready?"]
+                },
+                responsesByDay: {
+                    1: ["Plan steht! Habe alle Teams koordiniert. Budget ist knapp aber machbar.", "Ja, wird eng aber wir schaffen das. Alle sind informiert 📊"],
+                    3: ["Musste Mias Deko-Budget kürzen. War nicht einfach."],
+                    6: ["Gut. Aber manche sind stiller als andere."],
+                    7: ["Ja! Alle Teams on track. Wird gut!"]
+                }
+            }
+        ];
+
+        let currentDay = 1;
+        let completedDays = [];
+        let selectedProfileId = null;
+        let currentProfile = null;
+        let askedQuestions = {};
+
+        
+
+function init() {
+            loadNotes();
+            renderDaySelector();
+            renderTimeline();
+            renderProfiles();
+            profiles.forEach(p => { askedQuestions[p.id] = {}; });
+        }
+
+        function renderDaySelector() {
+            const selector = document.getElementById('daySelector');
+            selector.innerHTML = Array.from({length: 7}, (_, i) => {
+                const day = i + 1;
+                return `<button class="day-btn ${day === currentDay ? 'active' : ''} ${completedDays.includes(day) ? 'completed' : ''}" ${day > currentDay ? 'disabled' : ''} onclick="switchDay(${day})">Tag ${day}</button>`;
+            }).join('');
+        }
+
+        function switchDay(day) {
+            if (day > currentDay) return;
+            currentDay = day;
+            renderDaySelector();
+            renderTimeline();
+            updateNextDayButton();
+        }
+
+        function nextDay() {
+            if (currentDay < 7) {
+                currentDay++;
+                completedDays[currentDay - 1] = true;
+                renderDaySelector();
+                
+                // Entscheide ob Minigame oder LiveChat
+                if (currentDay === 3) {
+                    // Tag 3: Situations-Flip Minigame
+                    showSituationsFlipMinigame();
+                } else if (currentDay === 4) {
+                    // Tag 4: Communication Minigame
+                    showCommunicationMinigame(4);
+                } else if (currentDay === 6) {
+                    // Tag 6: Communication Minigame
+                    showCommunicationMinigame(6);
+                } else {
+                    // Alle anderen Tage: LiveChat anzeigen
+                    showLiveChat(currentDay);
+                }
+            } else {
+                document.getElementById('accusationSection').style.display = 'block';
+                document.getElementById('nextDayBtn').style.display = 'none';
+            }
+        }
+
+
+        // ==========================================
+        // PERMANENT RED FLAG TRACKING
+        // ==========================================
+        
+        let redFlaggedPosts = {}; // Format: { 'username-day-index': true }
+        
+        function toggleRedFlag(username, day, postIndex) {
+            const postKey = `${username}-${day}-${postIndex}`;
+            
+            if (redFlaggedPosts[postKey]) {
+                delete redFlaggedPosts[postKey];
+            } else {
+                redFlaggedPosts[postKey] = true;
+            }
+            
+            // Update visual state
+            renderTimeline();
+        }
+        
+        function isPostFlagged(username, day, postIndex) {
+            const postKey = `${username}-${day}-${postIndex}`;
+            return redFlaggedPosts[postKey] || false;
+        }
+
+        // ==========================================
+        // SITUATIONS-FLIP (Drag & Drop)
+        // ==========================================
+        
+        function showSituationsFlipMinigame() {
+            const container = document.querySelector('.container');
+            
+            const thoughts = [
+                { text: 'Ich muss das Budget im Blick behalten - das ist meine Verantwortung', person: 'tim', id: 1 },
+                { text: 'Alle schauen mich an... mein Gesicht glüht vor Scham', person: 'mia', id: 2 },
+                { text: 'Mias Vorschlag würde das Budget sprengen', person: 'tim', id: 3 },
+                { text: 'Die denken jetzt alle ich bin inkompetent', person: 'mia', id: 4 },
+                { text: 'War doch nur konstruktive Kritik', person: 'tim', id: 5 },
+                { text: 'Warum habe ich überhaupt etwas gesagt? Ich bin so ein Versager', person: 'mia', id: 6 }
+            ];
+            
+            // Shuffle thoughts
+            const shuffledThoughts = [...thoughts].sort(() => Math.random() - 0.5);
+            
+            container.innerHTML = `
+                <div class="mission-brief">
+                    <div class="mission-title" style="text-align: center;">🎭 Perspektiv-Flip: Das Budget-Meeting</div>
+                    <div style="text-align: center; margin: 20px 0; font-size: 16px; color: #666;">
+                        Tim hat Mias Budget-Vorschlag vor dem Team kritisiert.
+                        <br><strong>Ordne die Gedanken den richtigen Personen zu!</strong>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin: 30px 0;">
+                    <!-- Tim's Zone -->
+                    <div style="background: linear-gradient(135deg, #90EE90, #32CD32); border-radius: 12px; padding: 25px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 50px;">📊</div>
+                            <div style="font-weight: 700; font-size: 20px; color: white;">Tim</div>
+                            <div style="font-size: 13px; color: rgba(255,255,255,0.9);">Koordinator</div>
+                        </div>
+                        <div id="timDropZone" class="drop-zone" style="min-height: 300px; background: rgba(255,255,255,0.3); border-radius: 8px; padding: 15px;"
+                             ondrop="drop(event, 'tim')" ondragover="allowDrop(event)">
+                            <div style="text-align: center; color: white; font-size: 14px; padding: 20px;">
+                                Ziehe Tims Gedanken hierher
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mia's Zone -->
+                    <div style="background: linear-gradient(135deg, #FFE4E1, #FFB6C1); border-radius: 12px; padding: 25px;">
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 50px;">🎨</div>
+                            <div style="font-weight: 700; font-size: 20px; color: #424242;">Mia</div>
+                            <div style="font-size: 13px; color: #666;">Catering-Organisation</div>
+                        </div>
+                        <div id="miaDropZone" class="drop-zone" style="min-height: 300px; background: rgba(255,255,255,0.5); border-radius: 8px; padding: 15px;"
+                             ondrop="drop(event, 'mia')" ondragover="allowDrop(event)">
+                            <div style="text-align: center; color: #666; font-size: 14px; padding: 20px;">
+                                Ziehe Mias Gedanken hierher
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Thoughts Pool -->
+                <div style="background: white; border: 2px dashed #dbdbdb; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                    <div style="font-weight: 600; margin-bottom: 15px; text-align: center; color: #8e8e8e;">
+                        💭 Gedanken während des Meetings:
+                    </div>
+                    <div id="thoughtsPool" style="display: flex; flex-direction: column; gap: 10px;">
+                        ${shuffledThoughts.map(thought => `
+                            <div draggable="true" ondragstart="drag(event)" 
+                                 id="thought-${thought.id}"
+                                 data-person="${thought.person}"
+                                 class="thought-card"
+                                 style="background: white; border: 2px solid #dbdbdb; border-radius: 8px; padding: 15px; cursor: move; transition: all 0.3s;">
+                                <div style="font-size: 14px; line-height: 1.5;">${thought.text}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div id="flipFeedback" style="margin-top: 30px; display: none;"></div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="accuse-btn" id="checkFlipBtn" onclick="checkSituationsFlip()">Zuordnung prüfen</button>
+                    <button class="accuse-btn" id="continueFlipBtn" onclick="continueAfterFlip()" style="display: none;">Weiter zur Kommunikations-Übung →</button>
+                </div>
+                
+                <style>
+                    .thought-card:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+                    .drop-zone { transition: all 0.3s; }
+                    .drop-zone.drag-over { background: rgba(129, 52, 175, 0.2) !important; transform: scale(1.02); }
+                </style>
+            `;
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("thoughtId", ev.target.id);
+            ev.dataTransfer.setData("correctPerson", ev.target.dataset.person);
+        }
+
+        function drop(ev, zone) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            
+            const thoughtId = ev.dataTransfer.getData("thoughtId");
+            const thoughtElement = document.getElementById(thoughtId);
+            
+            if (thoughtElement) {
+                // Remove placeholder text if exists
+                const placeholder = ev.currentTarget.querySelector('div[style*="text-align: center"]');
+                if (placeholder && placeholder.textContent.includes('Ziehe')) {
+                    placeholder.remove();
+                }
+                
+                ev.currentTarget.appendChild(thoughtElement);
+            }
+        }
+
+        // Prevent default drag over for document
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('dragleave', (e) => {
+            if (e.target.classList.contains('drop-zone')) {
+                e.target.classList.remove('drag-over');
+            }
+        });
+
+        document.addEventListener('drop', (e) => {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => zone.classList.remove('drag-over'));
+        });
+
+        function checkSituationsFlip() {
+            const timZone = document.getElementById('timDropZone');
+            const miaZone = document.getElementById('miaDropZone');
+            
+            const timThoughts = Array.from(timZone.querySelectorAll('.thought-card'));
+            const miaThoughts = Array.from(miaZone.querySelectorAll('.thought-card'));
+            
+            let correct = 0;
+            let total = 0;
+            
+            timThoughts.forEach(thought => {
+                total++;
+                if (thought.dataset.person === 'tim') {
+                    correct++;
+                    thought.style.borderColor = '#4CAF50';
+                    thought.style.background = '#E8F5E9';
+                } else {
+                    thought.style.borderColor = '#FF5722';
+                    thought.style.background = '#FFEBEE';
+                }
+            });
+            
+            miaThoughts.forEach(thought => {
+                total++;
+                if (thought.dataset.person === 'mia') {
+                    correct++;
+                    thought.style.borderColor = '#4CAF50';
+                    thought.style.background = '#E8F5E9';
+                } else {
+                    thought.style.borderColor = '#FF5722';
+                    thought.style.background = '#FFEBEE';
+                }
+            });
+            
+            const feedback = document.getElementById('flipFeedback');
+            let message = '';
+            let color = '';
+            
+            if (correct === total) {
+                message = '🌟 Perfekt! Du verstehst genau, wie unterschiedlich Tim und Mia dieselbe Situation erleben. Tim sieht es als sachliche Budget-Diskussion, während Mia es als persönliches Versagen und Bloßstellung erlebt.';
+                color = '#4CAF50';
+            } else if (correct >= total * 0.7) {
+                message = '👍 Gut! Du erkennst die Hauptunterschiede. Tim denkt an Verantwortung und Sachlichkeit, Mia erlebt Scham und Selbstzweifel.';
+                color = '#FF9800';
+            } else {
+                message = '📚 Überlege nochmal: Tim fokussiert auf Budget und Verantwortung (sachlich), während Mia sich persönlich bewertet fühlt (emotional).';
+                color = '#FF5722';
+            }
+            
+            feedback.innerHTML = `
+                <div style="background: ${color}15; padding: 20px; border-radius: 8px; border-left: 4px solid ${color};">
+                    <div style="font-size: 16px; line-height: 1.6; color: #424242; margin-bottom: 15px;">
+                        ${message}
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 14px; color: #666;">
+                        <strong>💡 Wichtige Erkenntnis:</strong> Keine der beiden Perspektiven ist "falsch". Tim meint es nicht böse, 
+                        aber Mia erlebt es trotzdem als verletzend. Verschiedene Menschen erleben dieselbe Situation völlig unterschiedlich.
+                    </div>
+                </div>
+            `;
+            feedback.style.display = 'block';
+            document.getElementById('checkFlipBtn').style.display = 'none';
+            document.getElementById('continueFlipBtn').style.display = 'inline-block';
+            
+            // Disable dragging
+            document.querySelectorAll('.thought-card').forEach(card => {
+                card.draggable = false;
+                card.style.cursor = 'default';
+            });
+        }
+
+        function continueAfterFlip() {
+            // Nach Situations-Flip kommt Communication Minigame an Tag 4
+            showCommunicationMinigame(currentDay);
+        }
+
+        // ==========================================
+        // "WAS WÜRDEST DU SAGEN?" MINIGAME
+        // ==========================================
+        
+        function showCommunicationMinigame(day) {
+            const container = document.querySelector('.container');
+            
+            const scenarios = {
+                4: {
+                    context: 'Mia schreibt im Chat:',
+                    message: '"Kann nicht aufhören darüber nachzudenken... Was denken jetzt alle von mir?"',
+                    options: [
+                        {
+                            text: '"Denk nicht drüber nach, war doch nicht schlimm!"',
+                            type: 'minimizing',
+                            feedback: 'Diese Antwort minimiert Mias Gefühle. Sie fühlt sich nicht ernst genommen.',
+                            impact: 'Mia würde sich schuldig fühlen für ihre Reaktion und sich noch mehr zurückziehen.'
+                        },
+                        {
+                            text: '"Das war konstruktive Kritik. Sei nicht so sensibel."',
+                            type: 'dismissive',
+                            feedback: 'Diese Antwort wertet Mia ab und verstärkt ihr Gefühl, "falsch" zu sein.',
+                            impact: 'Mia würde sich noch schlechter fühlen und denken, sie ist das Problem.'
+                        },
+                        {
+                            text: '"Ich verstehe dass dich das beschäftigt. Das Meeting war unangenehm für dich, oder?"',
+                            type: 'empathetic',
+                            feedback: 'Diese Antwort zeigt Verständnis ohne zu werten. Mia fühlt sich gehört.',
+                            impact: 'Öffnet Raum für ehrlichen Austausch. Mia fühlt sich verstanden.'
+                        },
+                        {
+                            text: '"Lass uns überlegen wie wir das beim nächsten Mal besser machen."',
+                            type: 'problem-solving',
+                            feedback: 'Gut gemeint, aber zu früh. Mia braucht erst emotionale Unterstützung.',
+                            impact: 'Kann sich wie Druck anfühlen, die Gefühle zu überspringen.'
+                        }
+                    ]
+                },
+                6: {
+                    context: 'Mia schreibt:',
+                    message: '"Die Vorstellung morgen vor allen zu präsentieren... kann nicht. Allein der Gedanke macht mir Panik."',
+                    options: [
+                        {
+                            text: '"Du schaffst das! Einfach durchziehen!"',
+                            type: 'cheerleading',
+                            feedback: 'Gut gemeint, aber ignoriert die Tiefe von Mias Angst.',
+                            impact: 'Mia fühlt sich unter Druck gesetzt und nicht verstanden.'
+                        },
+                        {
+                            text: '"Das klingt nach echter Angst. Möchtest du darüber reden was genau dir Angst macht?"',
+                            type: 'empathetic',
+                            feedback: 'Nimmt Mias Gefühle ernst und bietet Raum für Austausch.',
+                            impact: 'Mia fühlt sich verstanden und könnte sich öffnen.'
+                        },
+                        {
+                            text: '"Jeder hat mal Lampenfieber. Das geht vorbei."',
+                            type: 'minimizing',
+                            feedback: 'Unterschätzt die Intensität von Mias Angst und Scham.',
+                            impact: 'Mia fühlt sich nicht ernst genommen.'
+                        },
+                        {
+                            text: '"Soll ich für dich präsentieren? Dann musst du nicht."',
+                            type: 'rescuing',
+                            feedback: 'Kurzfristige Lösung, aber bestätigt Mias Vermeidung.',
+                            impact: 'Verstärkt das Muster der Vermeidung. Keine langfristige Hilfe.'
+                        }
+                    ]
+                }
+            };
+            
+            const scenario = scenarios[day];
+            
+            container.innerHTML = `
+                <div class="mission-brief">
+                    <div class="mission-title" style="text-align: center;">💬 Was würdest DU sagen?</div>
+                    <div style="text-align: center; margin: 20px 0; font-size: 16px; color: #666;">
+                        Tag ${day} - Eine kritische Chat-Situation
+                    </div>
+                </div>
+                
+                <div style="background: white; border: 1px solid #dbdbdb; border-radius: 12px; padding: 30px; margin: 20px 0;">
+                    <div style="background: #f5f7fb; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+                        <div style="font-weight: 600; margin-bottom: 10px; color: #667eea;">${scenario.context}</div>
+                        <div style="background: white; padding: 15px; border-radius: 12px; border-left: 3px solid #FFE4E1; font-style: italic;">
+                            ${scenario.message}
+                        </div>
+                    </div>
+                    
+                    <div style="font-weight: 600; margin-bottom: 15px; font-size: 16px;">
+                        Wie würdest du antworten?
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        ${scenario.options.map((option, i) => `
+                            <button class="quiz-option" onclick="selectCommunication(${day}, ${i})"
+                                    style="text-align: left; padding: 15px;">
+                                ${option.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                    
+                    <div id="commFeedback" style="display: none; margin-top: 25px;"></div>
+                </div>
+            `;
+        }
+
+        function selectCommunication(day, optionIndex) {
+            const scenarios = {
+                4: {
+                    options: [
+                        {
+                            text: '"Denk nicht drüber nach, war doch nicht schlimm!"',
+                            type: 'minimizing',
+                            feedback: 'Diese Antwort minimiert Mias Gefühle. Sie fühlt sich nicht ernst genommen.',
+                            impact: 'Mia würde sich schuldig fühlen für ihre Reaktion und sich noch mehr zurückziehen.'
+                        },
+                        {
+                            text: '"Das war konstruktive Kritik. Sei nicht so sensibel."',
+                            type: 'dismissive',
+                            feedback: 'Diese Antwort wertet Mia ab und verstärkt ihr Gefühl, "falsch" zu sein.',
+                            impact: 'Mia würde sich noch schlechter fühlen und denken, sie ist das Problem.'
+                        },
+                        {
+                            text: '"Ich verstehe dass dich das beschäftigt. Das Meeting war unangenehm für dich, oder?"',
+                            type: 'empathetic',
+                            feedback: 'Diese Antwort zeigt Verständnis ohne zu werten. Mia fühlt sich gehört.',
+                            impact: 'Öffnet Raum für ehrlichen Austausch. Mia fühlt sich verstanden.'
+                        },
+                        {
+                            text: '"Lass uns überlegen wie wir das beim nächsten Mal besser machen."',
+                            type: 'problem-solving',
+                            feedback: 'Gut gemeint, aber zu früh. Mia braucht erst emotionale Unterstützung.',
+                            impact: 'Kann sich wie Druck anfühlen, die Gefühle zu überspringen.'
+                        }
+                    ]
+                },
+                6: {
+                    options: [
+                        {
+                            text: '"Du schaffst das! Einfach durchziehen!"',
+                            type: 'cheerleading',
+                            feedback: 'Gut gemeint, aber ignoriert die Tiefe von Mias Angst.',
+                            impact: 'Mia fühlt sich unter Druck gesetzt und nicht verstanden.'
+                        },
+                        {
+                            text: '"Das klingt nach echter Angst. Möchtest du darüber reden was genau dir Angst macht?"',
+                            type: 'empathetic',
+                            feedback: 'Nimmt Mias Gefühle ernst und bietet Raum für Austausch.',
+                            impact: 'Mia fühlt sich verstanden und könnte sich öffnen.'
+                        },
+                        {
+                            text: '"Jeder hat mal Lampenfieber. Das geht vorbei."',
+                            type: 'minimizing',
+                            feedback: 'Unterschätzt die Intensität von Mias Angst und Scham.',
+                            impact: 'Mia fühlt sich nicht ernst genommen.'
+                        },
+                        {
+                            text: '"Soll ich für dich präsentieren? Dann musst du nicht."',
+                            type: 'rescuing',
+                            feedback: 'Kurzfristige Lösung, aber bestätigt Mias Vermeidung.',
+                            impact: 'Verstärkt das Muster der Vermeidung. Keine langfristige Hilfe.'
+                        }
+                    ]
+                }
+            };
+            
+            const option = scenarios[day].options[optionIndex];
+            const feedback = document.getElementById('commFeedback');
+            
+            let color = option.type === 'empathetic' ? '#4CAF50' : '#FF9800';
+            let icon = option.type === 'empathetic' ? '✓' : '⚠️';
+            let rating = option.type === 'empathetic' ? 'Empathische Antwort' : 'Gut gemeint, aber...';
+            
+            feedback.innerHTML = `
+                <div style="background: ${color}15; padding: 20px; border-radius: 12px; border-left: 4px solid ${color};">
+                    <div style="font-weight: 700; margin-bottom: 12px; color: ${color}; font-size: 18px;">
+                        ${icon} ${rating}
+                    </div>
+                    <div style="margin-bottom: 12px; line-height: 1.6;">
+                        ${option.feedback}
+                    </div>
+                    <div style="padding: 12px; background: rgba(255,255,255,0.7); border-radius: 6px; font-size: 14px; color: #666;">
+                        <strong>Auswirkung:</strong> ${option.impact}
+                    </div>
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid ${color}30; font-size: 13px; color: #666;">
+                        <strong>💡 Tipp:</strong> ${option.type === 'empathetic' ? 
+                            'Empathie bedeutet: Gefühle anerkennen ohne sie zu bewerten oder sofort zu lösen.' :
+                            'Manchmal ist Zuhören wichtiger als Ratschläge geben.'}
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 25px;">
+                    <button class="accuse-btn" onclick="continueAfterComm()">Verstanden - Weiter →</button>
+                </div>
+            `;
+            feedback.style.display = 'block';
+            
+            // Disable all buttons
+            document.querySelectorAll('#commFeedback').forEach(() => {
+                document.querySelectorAll('.quiz-option').forEach(btn => btn.disabled = true);
+            });
+        }
+
+        function continueAfterComm() {
+            showLiveChat(currentDay);
+        }
+
+        function updateNextDayButton() {
+            const btn = document.getElementById('nextDayBtn');
+            btn.style.display = 'block';
+            if (currentDay === 7) {
+                btn.textContent = 'Verdacht aussprechen →';
+                btn.onclick = () => {
+                    document.getElementById('accusationSection').style.display = 'block';
+                    btn.style.display = 'none';
+                    window.scrollTo(0, document.body.scrollHeight);
+                };
+            } else {
+                btn.textContent = 'Nächster Tag →';
+                btn.onclick = nextDay;
+            }
+        }
+
+        function switchView(view) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(view + 'View').classList.add('active');
+        }
+
+        function renderTimeline() {
+            const timeline = document.getElementById('timeline');
+            const allPosts = [];
+            profiles.forEach(profile => {
+                const dayPosts = profile.postsByDay[currentDay] || [];
+                dayPosts.forEach((post, index) => {
+                    allPosts.push({ 
+                        ...post, 
+                        profile,
+                        day: currentDay,
+                        index: index,
+                        username: profile.username
+                    });
+                });
+            });
+            
+            timeline.innerHTML = allPosts.map((post, postIndex) => {
+                const postId = getPostId(post.profile.username, currentDay, post.index);
+                const isLiked = userLikes[postId] || false;
+                const likesDisplay = getLikesDisplay(post, postId);
+                const commentCount = post.comments ? post.comments.length : 0;
+                const isFlagged = isPostFlagged(post.profile.username, currentDay, post.index);
+                
+                return `
+                <div class="timeline-post">
+                    <div class="post-header">
+                        <img src="${post.profile.avatar}" class="post-avatar">
+                        <div class="post-user-info">
+                            <div class="post-username">${post.profile.username}</div>
+                            <div class="post-time">Tag ${currentDay} - ${post.time}</div>
+                        </div>
+                    </div>
+                    <div class="post-image-container"><img src="${post.image}" class="post-image"></div>
+                    <div class="post-actions">
+                        <button class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.profile.username}', ${currentDay}, ${post.index})">❤️</button>
+                        <button class="action-btn" onclick="showCommentsModal('${post.profile.username}', ${currentDay}, ${post.index})" title="${commentCount} Kommentare">💬${commentCount > 0 ? ' ' + commentCount : ''}</button>
+                        <button class="action-btn ${isFlagged ? 'flagged' : ''}" onclick="toggleRedFlag('${post.profile.username}', ${currentDay}, ${post.index})" title="Als Red Flag markieren" style="margin-left: auto;">🚩</button>
+                    </div>
+                    <div class="likes-section" style="cursor: pointer;" onclick="showLikesModal('${post.profile.username}', ${currentDay}, ${post.index})">
+                        <div class="likes-text">${likesDisplay}</div>
+                    </div>
+                    <div class="post-caption">
+                        <span class="caption-username">${post.profile.username}</span>${post.caption}
+                    </div>
+                    ${commentCount > 0 && commentCount <= 2 ? `<div class="comments-section">${post.comments.slice(0, 2).map(c => `<div class="comment"><span class="comment-username">${c.username}</span>${c.text}</div>`).join('')}</div>` : ''}
+                    ${commentCount > 2 ? `<div class="comments-section"><div style="color: #8e8e8e; font-size: 13px; cursor: pointer;" onclick="showCommentsModal('${post.profile.username}', ${currentDay}, ${post.index})">Alle ${commentCount} Kommentare ansehen</div></div>` : ''}
+                </div>
+                `;
+            }).join('');
+
+            
+            updateNextDayButton();
+        }
+
+        function renderProfiles() {
+            const grid = document.getElementById('profilesGrid');
+            grid.innerHTML = profiles.map(p => `
+                <div class="profile-card" data-id="${p.id}" onclick="selectProfile(${p.id})">
+                    <div class="profile-header">
+                        <img src="${p.avatar}" class="profile-avatar-large">
+                        <div class="profile-info">
+                            <div class="profile-username">${p.username}</div>
+                            <div class="profile-name">${p.name}</div>
+                            <div class="profile-role">${p.role}</div>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat"><div class="stat-number">${p.posts}</div><div class="stat-label">Beiträge</div></div>
+                        <div class="stat"><div class="stat-number">${p.followers}</div><div class="stat-label">Follower</div></div>
+                        <div class="stat"><div class="stat-number">${p.following}</div><div class="stat-label">Folge ich</div></div>
+                    </div>
+                    <div class="profile-bio-section"><div class="profile-bio">${p.bio}</div></div>
+                    <button class="view-profile-btn" onclick="event.stopPropagation(); openProfile(${p.id})">Profil ansehen & chatten</button>
+                </div>
+            `).join('');
+        }
+
+        function selectProfile(id) {
+            selectedProfileId = id;
+            const profile = profiles.find(p => p.id === id);
+            document.querySelectorAll('.profile-card').forEach(card => card.classList.toggle('selected', card.dataset.id == id));
+            document.getElementById('selectedSuspect').innerHTML = `<strong>Verdacht:</strong> ${profile.name} (@${profile.username})<br><small style="color: #8e8e8e;">${profile.role}</small>`;
+            document.getElementById('accuseBtn').disabled = false;
+        }
+
+        function openProfile(id) {
+            currentProfile = profiles.find(p => p.id === id);
+            document.getElementById('modalUsername').textContent = `@${currentProfile.username} - ${currentProfile.role}`;
+            
+            const postsSection = document.getElementById('postsSection');
+            let allPosts = [];
+            for (let d = 1; d <= currentDay; d++) {
+                const dayPosts = currentProfile.postsByDay[d] || [];
+                dayPosts.forEach(post => allPosts.push({...post, day: d}));
+            }
+            postsSection.innerHTML = allPosts.map(post => `
+                <div class="post-detail">
+                    <div style="font-size: 12px; color: #8134af; font-weight: 600; margin-bottom: 8px;">Tag ${post.day}</div>
+                    <div class="post-detail-image-container"><img src="${post.image}" class="post-detail-image"></div>
+                    <div class="post-caption-detail"><strong>@${currentProfile.username}</strong> ${post.caption}</div>
+                    <div class="post-time-detail">${post.time}</div>
+                </div>
+            `).join('');
+            
+            const questionButtons = document.getElementById('questionButtons');
+            let availableQuestions = [];
+            for (let d = 1; d <= currentDay; d++) {
+                const dayQuestions = currentProfile.questionsByDay[d] || [];
+                dayQuestions.forEach((q, i) => availableQuestions.push({day: d, index: i, question: q}));
+            }
+            questionButtons.innerHTML = availableQuestions.map(q => {
+                const key = `${q.day}-${q.index}`;
+                const asked = askedQuestions[currentProfile.id][key];
+                return `<button class="question-btn" onclick="askQuestion(${q.day}, ${q.index})" ${asked ? 'disabled' : ''}>${asked ? '✓ ' : ''}[Tag ${q.day}] ${q.question}</button>`;
+            }).join('');
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML = `<div class="message other"><div class="message-bubble">Hey! Was gibt's? 👋</div></div>`;
+            Object.keys(askedQuestions[currentProfile.id]).forEach(key => {
+                const [day, index] = key.split('-').map(Number);
+                const question = currentProfile.questionsByDay[day][index];
+                const response = currentProfile.responsesByDay[day][index];
+                chatMessages.innerHTML += `
+                    <div class="message user"><div class="message-bubble">${question}</div></div>
+                    <div class="message other"><div class="message-bubble">${response}</div></div>
+                `;
+            });
+            
+            document.getElementById('profileModal').classList.add('active');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function closeModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function askQuestion(day, index) {
+            const key = `${day}-${index}`;
+            if (askedQuestions[currentProfile.id][key]) return;
+            
+            const question = currentProfile.questionsByDay[day][index];
+            const response = currentProfile.responsesByDay[day][index];
+            askedQuestions[currentProfile.id][key] = true;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML += `<div class="message user"><div class="message-bubble">${question}</div></div>`;
+            event.target.disabled = true;
+            event.target.textContent = '✓ [Tag ' + day + '] ' + question;
+            
+            setTimeout(() => {
+                chatMessages.innerHTML += `<div class="message other"><div class="message-bubble">${response}</div></div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function makeAccusation() {
+            if (!selectedProfileId) return;
+            const profile = profiles.find(p => p.id === selectedProfileId);
+            if (profile.isCulprit) {
+                startQuiz();
+            } else {
+                alert(`❌ FALSCH!\n\n${profile.name} hatte zwar temporäre Frustrationen, aber die waren lösbar.\n\nDie richtige Person: Mia Chen\n\n💡 Unterschied: Während andere Probleme lösten (Leon: Kabel, Jonas: Headliner, Emma: Reichweite), eskalierte Mias Situation kontinuierlich ohne Lösung.`);
+            }
+        }
+
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+const quizQuestions = [
+            {type: "mc", question: "Was hält Mia hauptsächlich davon ab, weiterzumachen?", options: [{text: "Sie ist faul und hat keine Lust", value: "lazy"}, {text: "Die Angst vor negativer Beurteilung und dem Gefühl, beobachtet zu werden", value: "fear_judgment"}, {text: "Sie mag das Team nicht", value: "dislike"}, {text: "Die Aufgaben sind zu schwierig", value: "too_hard"}], correctValue: "fear_judgment"},
+            {type: "mc", question: "Stell dir vor, du wärst Mia nach Tag 3. Was würdest du am ehesten denken?", options: [{text: "Das war ärgerlich, aber morgen ist ein neuer Tag", value: "move_on"}, {text: "Alle haben gesehen, dass ich versagt habe. Sie werden mich jetzt anders sehen", value: "shame"}, {text: "Tim sollte sich entschuldigen", value: "blame"}], correctValue: "shame"},
+            {type: "scale", question: "Wie stark hat die öffentliche Kritik (Tag 3) Mias weiteres Verhalten beeinflusst?", min: 1, max: 10, minLabel: "Gar nicht", maxLabel: "Sehr stark"},
+            {type: "mc", question: "Was unterscheidet Mias Situation von den Problemen der anderen im Team?", options: [{text: "Ihre Probleme sind technischer Natur und eindeutig lösbar", value: "technical"}, {text: "Sie fühlt sich als Person bewertet, nicht nur ihre Arbeit", value: "personal"}, {text: "Sie hat keine echten Probleme", value: "no_problems"}], correctValue: "personal"},
+            {type: "opentext", question: "Nenne 2-3 Warnsignale in Mias Posts oder im Chat, die zeigen, dass sie kämpft."},
+            {type: "mc", question: "Warum konnten Leon, Jonas und Emma ihre Schwierigkeiten überwinden?", options: [{text: "Ihre Probleme waren situationsbedingt und technisch lösbar", value: "situational"}, {text: "Sie waren mental stärker als Mia", value: "stronger"}, {text: "Sie hatten einfach Glück", value: "luck"}], correctValue: "situational"},
+            {type: "mc", question: "Wie erlebt Mia vermutlich die Gruppensituationen ab Tag 4?", options: [{text: "Als Chance, Probleme zu lösen", value: "opportunity"}, {text: "Als bedrohlich - sie fühlt sich unter Beobachtung und erwartet Kritik", value: "threatening"}, {text: "Neutral, wie alle anderen auch", value: "neutral"}], correctValue: "threatening"},
+            {type: "scale", question: "Wie sehr bestimmt die Sorge 'Was denken die anderen über mich?' Mias Entscheidungen?", min: 1, max: 10, minLabel: "Gar nicht", maxLabel: "Sehr stark"},
+            {type: "mc", question: "Was war der Wendepunkt für Mias Rückzug?", options: [{text: "Die öffentliche Kritik am Budget vor dem ganzen Team", value: "public_criticism"}, {text: "Zu viele Aufgaben auf einmal", value: "workload"}, {text: "Ein Missverständnis mit Sarah", value: "misunderstanding"}], correctValue: "public_criticism"},
+            {type: "mc", question: "Wenn du Mia nach Tag 5 triffst und sie sagt 'Ich kann morgen nicht zur Präsentation', was steckt wahrscheinlich dahinter?", options: [{text: "Sie ist einfach unvorbereitet", value: "unprepared"}, {text: "Die Angst vor erneutem öffentlichen Versagen ist überwältigend", value: "fear"}, {text: "Sie will das Team ärgern", value: "spite"}], correctValue: "fear"},
+            {type: "opentext", question: "Wie hätte Tim die Budget-Kritik anders kommunizieren können, um Mia nicht bloßzustellen?"},
+            {type: "scale", question: "Wie wahrscheinlich ist es, dass Mia ohne aktive Unterstützung ihre Aufgaben hinwirft?", min: 1, max: 10, minLabel: "Unwahrscheinlich", maxLabel: "Sehr wahrscheinlich"},
+            {type: "mc", question: "Was würde Mia am ehesten helfen, weiterzumachen?", options: [{text: "Sie ignorieren, damit sie nicht noch mehr Aufmerksamkeit bekommt", value: "ignore"}, {text: "Private Gespräche, Verständnis zeigen und gemeinsam nach Lösungen suchen", value: "support"}, {text: "Ihr sagen, dass sie sich nicht so anstellen soll", value: "tough"}], correctValue: "support"},
+            {type: "mc", question: "Was nimmt Mia vermutlich wahr, wenn das Team über andere Dinge spricht (Tag 4-5)?", options: [{text: "Sie ist froh, dass nicht über sie geredet wird", value: "relief"}, {text: "Sie fühlt sich ausgeschlossen und denkt, alle meiden sie wegen ihres Fehlers", value: "excluded"}, {text: "Es ist ihr egal", value: "indifferent"}], correctValue: "excluded"},
+            {type: "opentext", question: "Schreibe eine unterstützende Nachricht an Mia (3-4 Sätze), die zeigt, dass du verstehst wie sie sich fühlt."},
+            {type: "scale", question: "Wie hilfreich war das Muster der abnehmenden Likes als Hinweis auf Mias Zustand?", min: 1, max: 10, minLabel: "Nicht hilfreich", maxLabel: "Sehr hilfreich"}
+        ];
+
+        let quizAnswers = {};
+
+        function startQuiz() {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="mission-brief" style="text-align: center;">
+                    <div class="mission-title">✅ Richtig erkannt!</div>
+                    <div class="mission-text" style="font-size: 16px;">
+                        Mia ist die Person, die plant aufzuhören.
+                        <br><br><strong>Aber hast du verstanden WARUM?</strong>
+                        <br><br>Im folgenden Quiz testen wir, wie gut du ihre Situation verstanden hast.
+                        <br><br><em>Du erhältst die Auswertung am Ende!</em>
+                        <br><br><button class="accuse-btn" onclick="showQuiz()">🧠 Quiz starten</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showQuiz() {
+            const container = document.querySelector('.container');
+            let html = `<div class="mission-brief"><div class="mission-title">🧠 Quiz</div><div style="color: #666; margin-bottom: 20px;">Beantworte alle ${quizQuestions.length} Fragen.</div></div><div class="quiz-container">`;
+            quizQuestions.forEach((q, i) => {
+                html += `<div class="quiz-question"><div class="quiz-question-text">${i + 1}. ${q.question}</div>`;
+                if (q.type === "mc") {
+                    html += `<div class="quiz-options">`;
+                    q.options.forEach(opt => html += `<button class="quiz-option" onclick="selectMC(${i}, '${opt.value}', this)">${opt.text}</button>`);
+                    html += `</div>`;
+                } else if (q.type === "scale") {
+                    html += `<div class="quiz-scale">`;
+                    for (let n = q.min; n <= q.max; n++) html += `<button class="scale-btn" onclick="selectScale(${i}, ${n}, this)">${n}</button>`;
+                    html += `</div><div class="scale-labels"><span>${q.minLabel}</span><span>${q.maxLabel}</span></div>`;
+                } else if (q.type === "opentext") {
+                    html += `<textarea class="textarea-input" id="opentext-${i}" placeholder="Deine Antwort..." oninput="saveOpenText(${i})"></textarea>`;
+                }
+                html += `</div>`;
+            });
+            html += `</div><div style="text-align: center; margin: 30px 0;"><button class="accuse-btn" onclick="submitQuiz()">Quiz abschließen</button></div>`;
+            container.innerHTML = html;
+        }
+
+        function selectMC(i, value, el) {
+            quizAnswers[i] = {type: "mc", value};
+            el.parentElement.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function selectScale(i, value, el) {
+            quizAnswers[i] = {type: "scale", value};
+            el.parentElement.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+
+        function saveOpenText(i) {
+            quizAnswers[i] = {type: "opentext", value: document.getElementById(`opentext-${i}`).value};
+        }
+
+        function submitQuiz() {
+            if (Object.keys(quizAnswers).length < quizQuestions.length) {
+                alert('Bitte beantworte alle Fragen!');
+                return;
+            }
+            let score = 0, maxScore = 0;
+            quizQuestions.forEach((q, i) => {
+                if (q.correctValue && quizAnswers[i]) {
+                    maxScore++;
+                    if (quizAnswers[i].value === q.correctValue) score++;
+                }
+            });
+            const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+            showResults(score, maxScore, pct);
+        }
+
+        function showResults(score, maxScore, pct) {
+            let rating, color, insight;
+            if (pct >= 80) { rating = "Hervorragend! 🌟"; color = "#4CAF50"; insight = "Du hast die Dynamiken sehr gut verstanden."; }
+            else if (pct >= 60) { rating = "Gut! 👍"; color = "#FF9800"; insight = "Du erkennst wichtige Muster."; }
+            else if (pct >= 40) { rating = "Ausbaufähig 📚"; color = "#FF5722"; insight = "Achte mehr auf emotionale Rückzugs-Signale."; }
+            else { rating = "Noch Potenzial 💪"; color = "#F44336"; insight = "Mit Übung wird man besser darin, solche Muster zu erkennen!"; }
+
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="mission-brief">
+                    <div class="mission-title" style="text-align: center;">🎯 Quiz abgeschlossen!</div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <div style="font-size: 64px; font-weight: bold; color: ${color};">${score} / ${maxScore}</div>
+                        <div style="font-size: 28px; margin-top: 15px; font-weight: 600;">${rating}</div>
+                        <div style="font-size: 18px; margin-top: 15px; color: #666; max-width: 600px; margin-left: auto; margin-right: auto;">${insight}</div>
+                    </div>
+                    <div style="background: #FFF3E0; padding: 25px; border-radius: 12px; margin: 30px 0; border-left: 4px solid #FF9800;">
+                        <div style="font-weight: 700; margin-bottom: 15px; color: #F57C00; font-size: 20px;">🔍 Was du gelernt hast:</div>
+                        <div style="font-size: 15px; line-height: 1.8; color: #424242;">
+                            <strong>Persönliche vs. situative Probleme:</strong> Während andere technische Probleme lösten, fühlte Mia sich als Person bewertet.
+                            <br><br><strong>Warnsignale:</strong> Sozialer Rückzug, dunkler werdende Posts, abnehmende Likes, Selbstzweifel.
+                            <br><br><strong>Red Herrings:</strong> Leon, Jonas und Emma hatten temporäre, lösbare Probleme. Mias Situation eskalierte ohne Lösung.
+                            <br><br><strong>Was geholfen hätte:</strong> Private Gespräche, Trennung von Person und Leistung, Wertschätzung zeigen.
+                        </div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 30px; border-radius: 12px; color: white; text-align: center; margin: 30px 0;">
+                        <div style="font-size: 24px; font-weight: 700; margin-bottom: 15px;">💬 Bonus: Perspektivübernahme</div>
+                        <div style="font-size: 16px; margin-bottom: 20px;">Lass uns sehen, wie gut du dich in Mia hineinversetzen kannst!</div>
+                        <button class="accuse-btn" style="background: white; color: #667eea;" onclick="showEmpathyChat()">Perspektive erleben →</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showEmpathyChat() {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="mission-brief">
+                    <div class="mission-title" style="text-align: center;">💭 Aus Mias Perspektive</div>
+                    <div style="text-align: center; margin: 20px 0; font-size: 16px; color: #666;">
+                        Du bist jetzt Mia. Das Team chattet über das Schulfest. <strong>Was würdest du am liebsten schreiben?</strong>
+                    </div>
+                </div>
+                <div style="background: white; border: 1px solid #dbdbdb; border-radius: 12px; padding: 30px; margin: 20px 0;">
+                    <div style="background: #f5f7fb; padding: 20px; border-radius: 8px; margin-bottom: 20px; max-height: 400px; overflow-y: auto;" id="empathyMessages">
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: #667eea;">Jonas:</div>
+                            <div style="background: white; padding: 12px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                Hey Team! Das wird SO gut! Nur noch 3 Tage! 🎉
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: #43e97b;">Emma:</div>
+                            <div style="background: white; padding: 12px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                Ja! Die Social Media Zahlen sind der Wahnsinn! 📈
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: #f093fb;">Leon:</div>
+                            <div style="background: white; padding: 12px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                Technik läuft perfekt. Wird legendär! 🔥
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: 600; margin-bottom: 8px; color: #fa709a;">Sarah:</div>
+                            <div style="background: white; padding: 12px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                Catering ist ready! Freue mich so! 🍕
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #667eea;">💭 Als Mia denkst du gerade:</div>
+                        <div style="background: #FFF3E0; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-style: italic; color: #666;">
+                            "Alle sind so aufgeregt und erfolgreich... Ich fühle mich wie eine Belastung nach dem Budget-Fehler. 
+                            Was soll ich schreiben? Wenn ich zu positiv bin, ist es unecht. Wenn ich ehrlich bin, ziehe ich alle runter..."
+                        </div>
+                        
+                        <div style="font-weight: 600; margin-bottom: 12px;">Was würdest du schreiben? (Schreibe aus Mias Perspektive):</div>
+                        <textarea id="empathyInput" style="width: 100%; min-height: 120px; padding: 15px; border: 2px solid #dbdbdb; border-radius: 8px; font-size: 14px; resize: vertical;" placeholder="Schreibe hier deine Nachricht als Mia...
+
+Tipp: Versuche ehrlich zu sein, wie Mia sich wirklich fühlt, aber finde einen Weg, der für sie erträglich ist."></textarea>
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 20px;">
+                            <button class="accuse-btn" onclick="analyzeEmpathy()" style="flex: 1;">Nachricht senden & auswerten</button>
+                        </div>
+                        
+                        <div style="margin-top: 20px; padding: 15px; background: #E8F5E9; border-radius: 8px; display: none;" id="empathyFeedback"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function analyzeEmpathy() {
+            const input = document.getElementById('empathyInput').value.trim();
+            const feedback = document.getElementById('empathyFeedback');
+            const analyzeBtn = event.target;
+            
+            if (!input) {
+                alert('Bitte schreibe eine Nachricht!');
+                return;
+            }
+            
+            // Zeige "Denkt nach..." Zustand
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = '🤔 KI analysiert deine Nachricht...';
+            
+            feedback.innerHTML = `
+                <div style="text-align: center; padding: 30px;">
+                    <div style="font-size: 48px; margin-bottom: 15px;">🤔</div>
+                    <div style="font-size: 18px; font-weight: 600; color: #667eea;">KI analysiert deine Nachricht...</div>
+                    <div style="font-size: 14px; color: #8e8e8e; margin-top: 10px;">Dies kann einen Moment dauern</div>
+                    <div style="margin-top: 20px;">
+                        <div style="width: 200px; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 0 auto; overflow: hidden;">
+                            <div style="width: 30%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); animation: loading 1.5s infinite;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            feedback.style.display = 'block';
+            
+            try {
+                // Bereite den Kontext für die KI vor
+                const context = `Du bist eine Expertin für Perspektivübernahme und Einfühlungsvermögen. 
+
+KONTEXT: In einer Lernanwendung über soziale Dynamiken haben Nutzer die Geschichte von Mia verfolgt - einer Studentin, die nach öffentlicher Kritik (Budget-Kürzung vor dem ganzen Team in Tag 3) zunehmend unter Scham und sozialer Angst leidet. Sie fühlt sich als Person bewertet, nicht nur ihre Arbeit, und zieht sich immer mehr zurück.
+
+Jetzt ist der Nutzer in Mias Rolle: Das Team chattet euphorisch über den Erfolg des Projekts. Mia fühlt sich wie eine Belastung nach ihrem "Fehler" und ist hin- und hergerissen zwischen dem Wunsch dabei zu sein und der Angst, erneut zu versagen oder das Team runterzuziehen.
+
+NUTZER SCHRIEB ALS MIA:
+"${input}"
+
+AUFGABE: Analysiere diese Nachricht auf Einfühlungsvermögen und Authentizität für Mias Situation. Gib konstruktives, ermutigendes Feedback in 3-4 Sätzen. Strukturiere so:
+
+1. Beginne mit einer positiven Beobachtung (Was gut gelungen ist)
+2. Erkläre WAS authentisch/weniger authentisch an der Nachricht ist für Mias Situation
+3. Gib einen konkreten, hilfreichen Hinweis zur Verbesserung (falls nötig)
+4. Schließe ermutigend ab
+
+Sei warmherzig und lehrreich, aber ehrlich. Keine Auflistungen oder Struktur-Marker. Natürlicher Fließtext.`;
+
+                // API Call (Du musst hier deinen API Key verwenden)
+                const API_KEY = 'YOUR_ANTHROPIC_API_KEY'; // ⚠️ WICHTIG: Ersetze dies mit deinem echten Key
+                
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY,
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-3-5-sonnet-20241022',
+                        max_tokens: 1024,
+                        messages: [{
+                            role: 'user',
+                            content: context
+                        }]
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API-Fehler');
+                }
+                
+                const data = await response.json();
+                const aiFeedback = data.content[0].text;
+                
+                // Zeige das KI-Feedback
+                feedback.innerHTML = `
+                    <div style="font-size: 20px; font-weight: 700; margin-bottom: 15px; color: #667eea;">🤖 KI-Analyse</div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; color: #424242;">
+                        ${aiFeedback}
+                    </div>
+                    <div style="background: #E3F2FD; padding: 15px; border-radius: 8px; color: #424242;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #1976D2;">💭 Eine mögliche authentische Antwort von Mia:</div>
+                        <div style="font-style: italic;">"Ich freue mich auch... auch wenn mir das alles gerade noch etwas überwältigend vorkommt. Aber ich versuche mein Bestes zu geben 🤞"</div>
+                        <div style="margin-top: 10px; font-size: 13px; color: #666;">
+                            → Zeigt Bemühung und Hoffnung, gibt aber ehrlich zu, dass es schwer ist
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="accuse-btn" onclick="location.reload()">🔄 Nochmal spielen</button>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                // Fallback auf lokale Analyse wenn API nicht verfügbar
+                feedback.innerHTML = `
+                    <div style="background: #FFF3E0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="font-weight: 600; color: #F57C00; margin-bottom: 10px;">⚠️ KI-Analyse vorübergehend nicht verfügbar</div>
+                        <div style="color: #666;">Verwende die lokale Analyse:</div>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; line-height: 1.8; color: #424242;">
+                        Deine Nachricht "${input}" zeigt ${input.length > 30 ? 'eine durchdachte' : 'eine kurze'} Reaktion auf die Teamsituation. 
+                        ${input.toLowerCase().includes('aber') || input.toLowerCase().includes('auch wenn') || input.toLowerCase().includes('...') ? 
+                            'Gut ist die Ambivalenz, die du zeigst - das ist authentisch für jemanden, der innerlich kämpft.' : 
+                            'Überlege, ob Mia in dieser Situation nicht auch Zweifel oder Unsicherheit zeigen würde.'}
+                        ${input.toLowerCase().includes('freue') || input.toLowerCase().includes('dabei') ? 
+                            'Die Hoffnung ist wichtig, um das Team nicht zu belasten.' : 
+                            'Eine Prise Hoffnung könnte helfen, damit Mia sich nicht komplett zurückzieht.'}
+                    </div>
+                    <div style="background: #E3F2FD; padding: 15px; border-radius: 8px; color: #424242;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #1976D2;">💭 Eine mögliche authentische Antwort von Mia:</div>
+                        <div style="font-style: italic;">"Ich freue mich auch... auch wenn mir das alles gerade noch etwas überwältigend vorkommt. Aber ich versuche mein Bestes zu geben 🤞"</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="accuse-btn" onclick="location.reload()">🔄 Nochmal spielen</button>
+                    </div>
+                `;
+            }
+            
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = 'Nachricht senden & auswerten';
+            
+            // Scroll to feedback
+            feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+
+        // Live Group Chat Data and Functions
+        const chatDataByDay = {
+            1: [
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Hey Team! 👋 Ich hab mal eine erste Aufgabenliste für unser Schulfest erstellt', time: '09:23', delay: 2000 },
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'Nice! Zeig mal her', time: '09:24', delay: 2500 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Also: Ich kümmere mich um Technik und Bühne, Jonas du machst die Musik, Emma Social Media, Sarah Dekoration und Mia die Catering-Organisation', time: '09:25', delay: 4000 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Perfekt! Ich starte gleich mit Posts für Instagram 📱✨', time: '09:26', delay: 3000 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Ich hab schon ein paar Deko-Ideen! Wir könnten mit Lichterketten arbeiten 💡', time: '09:27', delay: 3500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Okay, ich check mal die Caterer durch. Hat jemand Empfehlungen?', time: '09:28', delay: 3000 }
+            ],
+            2: [
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Morgen! Ich hab jetzt drei Caterer angeschrieben, warte noch auf Antworten', time: '08:45', delay: 3000 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Super! Ich hab ein kleines Problem mit den Kabeln... Die sind teilweise beschädigt 😬', time: '09:15', delay: 3500 },
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'Oh nein! Brauchst du Hilfe beim Besorgen neuer?', time: '09:16', delay: 2500 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Wäre cool! Ich schick dir gleich ne Liste', time: '09:17', delay: 2500 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Hab grad den ersten Post hochgeladen! 127 Likes in 10 Minuten 🎉', time: '10:30', delay: 3000 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Nice! Der Post sieht echt professionell aus 👏', time: '10:32', delay: 2000 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Hab von einem Caterer Absage bekommen... Budget zu klein. Ich frag noch bei den anderen nach', time: '11:45', delay: 3500 }
+            ],
+            3: [
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Good News! Kabel-Problem gelöst! Jonas hat mir geholfen, die neuen sind top! 🔌✅', time: '08:20', delay: 3000 },
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'Teamwork! 💪', time: '08:21', delay: 1500 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Kleines Update von mir: Die Firma hat die Deko-Materialien bestätigt! Kommt Donnerstag an', time: '09:00', delay: 3000 },
+                { type: 'message', user: 'Tim', avatar: 'T', color: 'jonas', text: 'Hey Mia, wegen gestern - war nicht böse gemeint! War nur Budget-Stress', time: '09:10', delay: 3000 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Kann nicht aufhören darüber nachzudenken... Das Meeting spielt sich immer wieder in meinem Kopf ab. Was denken jetzt alle von mir?', time: '09:15', delay: 4500 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Mia! Denk nicht drüber nach, war doch nichts Schlimmes!', time: '09:17', delay: 2500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Für euch vielleicht... Ich konnte gestern nicht schlafen. Meine Hände haben so gezittert vor allen', time: '09:20', delay: 3500 },
+                { type: 'system', text: 'Mia hat die Gruppe um 14:30 Uhr verlassen', delay: 3000 },
+                { type: 'system', text: 'Mia ist der Gruppe um 14:35 Uhr wieder beigetreten', delay: 1500 }
+            ],
+            4: [
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'SCHLECHTE NEWS 😭 Der Headliner hat abgesagt!!!', time: '10:00', delay: 3000 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'WAS?! Warum denn?', time: '10:01', delay: 2000 },
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'Krankheit... Aber ich bin schon am Suchen nach Ersatz!', time: '10:02', delay: 2500 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Mist... Meine Reichweite ist heute auch total eingebrochen 📉 Keine Ahnung warum', time: '10:30', delay: 3000 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Ist heute irgendwie alles stressig... Meine Deko-Lieferung ist zu spät gekommen', time: '11:00', delay: 3000 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Mia, du hast doch Erfahrung - hast du Ideen für Jonas?', time: '11:10', delay: 2500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Ich... weiß nicht. Trau mich kaum noch was zu sagen nach neulich', time: '11:15', delay: 3500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Jedes Mal wenn ich hier was schreibe, hab ich Angst dass wieder jemand sagt ich liege falsch. Mein Herz rast schon.', time: '11:17', delay: 4000 }
+            ],
+            5: [
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'GUTE NACHRICHTEN! 🎉 Ich hab einen NOCH besseren Headliner gefunden! DJ Sarah Connor ist dabei!', time: '08:00', delay: 3000 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'WHAAAAT?! Das ist ja der Hammer!! 🔥', time: '08:01', delay: 2000 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Meine Reichweite ist auch wieder voll da! Sogar besser als vorher! 📈✨', time: '08:30', delay: 3000 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Und meine Deko ist komplett angekommen! Alles perfekt 🎨', time: '09:00', delay: 2500 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Mia, magst du heute zum Treffen kommen? Würde mich freuen!', time: '09:25', delay: 2500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: '...', time: '09:35', delay: 4000 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Ich kann nicht. Die Vorstellung dass wieder alle auf mich schauen... Ich kann den Blicken nicht standhalten.', time: '09:36', delay: 3500 },
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'Niemand schaut dich komisch an!', time: '09:38', delay: 2000 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Doch. Ich spüre es. Jeder denkt ich bin unfähig. Nach der Präsentation... ich bin so ein Versager.', time: '09:40', delay: 4000 }
+            ],
+            6: [
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Mia, so ein Quatsch! Du machst das super!', time: '08:00', delay: 2500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Nein. Ich kann morgen nicht vor allen präsentieren. Allein der Gedanke... mir wird schon jetzt schlecht.', time: '08:05', delay: 4000 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Wir sind doch bei dir! Du bist nicht allein', time: '08:07', delay: 2000 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Aber alle werden mich ansehen. Warten dass ich wieder versage. Die Panik ist zu groß... ich kann nicht atmen wenn ich daran denke.', time: '08:10', delay: 4500 },
+                { type: 'system', text: 'Mia ist offline', delay: 3000 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Leute, das sieht nicht gut aus. Sie braucht ernsthafte Hilfe', time: '08:30', delay: 3000 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Ja... Das sind mehr als nur Nervosität. Das klingt nach echter Angststörung', time: '08:32', delay: 3000 },
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'Sollten wir mit der Schulpsychologin sprechen?', time: '08:33', delay: 2500 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Ja, definitiv. Wir können ihr alleine nicht helfen 💚', time: '08:35', delay: 2500 }
+            ],
+            7: [
+                { type: 'system', text: 'Mia ist wieder online', delay: 2000 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Hey Mia! Können wir bitte reden?', time: '09:00', delay: 2500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Was gibt es?', time: '09:05', delay: 3000 },
+                { type: 'message', user: 'Jonas', avatar: 'J', color: 'jonas', text: 'Wir haben gemerkt dass es dir nicht gut geht. Wir machen uns Sorgen', time: '09:06', delay: 3500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Ich... weiß nicht. Die Präsentation morgen... ich kann das einfach nicht.', time: '09:10', delay: 3500 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Du musst das nicht alleine machen! Wir können die Präsentation zusammen halten', time: '09:11', delay: 3000 },
+                { type: 'message', user: 'Sarah', avatar: 'S', color: 'sarah', text: 'Genau! Niemand erwartet dass du alleine da vorne stehst. Wir sind ein Team', time: '09:13', delay: 3500 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: 'Aber... nach der letzten Präsentation... alle haben mich angeschaut...', time: '09:16', delay: 3500 },
+                { type: 'message', user: 'Leon', avatar: 'L', color: 'leon', text: 'Das war eine Diskussion, keine Kritik an dir persönlich! Du machst einen tollen Job', time: '09:18', delay: 3500 },
+                { type: 'message', user: 'Tim', avatar: 'T', color: 'jonas', text: 'Hey Mia - tut mir leid wenn das so rüberkam. War nicht gegen dich! Diskutieren gehört zu Teamwork dazu', time: '09:20', delay: 4000 },
+                { type: 'message', user: 'Mia', avatar: 'M', color: 'mia', text: '...danke. Vielleicht... mit euch zusammen könnte ich das schaffen', time: '09:24', delay: 4000 },
+                { type: 'message', user: 'Emma', avatar: 'E', color: 'emma', text: 'Natürlich kannst du das! Zusammen sind wir stark 💪', time: '09:25', delay: 2500 }
+            ]
+        };
+
+        let currentChatDay = 1;
+        let chatMessageIndex = 0;
+        let chatTimeout;
+        let pendingDayTransition = false;
+        let targetDay = 1;
+
+        function showLiveChat(day) {
+            currentChatDay = day;
+            chatMessageIndex = 0;
+            pendingDayTransition = true;
+            targetDay = day + 1;
+            
+            const modal = document.getElementById('liveChatModal');
+            const messages = document.getElementById('liveChatMessages');
+            const dayLabel = document.getElementById('liveChatDay');
+            
+            messages.innerHTML = '';
+            dayLabel.textContent = `Tag ${day} - Gruppenchat`;
+            modal.classList.add('active');
+            
+            // Start chat animation after a short delay
+            setTimeout(() => {
+                processChatMessage();
+            }, 500);
+        }
+
+        function closeLiveChat() {
+            if (chatTimeout) {
+                clearTimeout(chatTimeout);
+            }
+            document.getElementById('liveChatModal').classList.remove('active');
+            pendingDayTransition = false;
+        }
+
+        function continueToDayAfterChat() {
+            closeLiveChat();
+            // currentDay wurde bereits von nextDay() erhöht
+            // Wir müssen nur die Ansicht aktualisieren
+            renderDaySelector();
+            renderTimeline();
+            updateNextDayButton();
+            window.scrollTo(0, 0);
+        }
+
+        function processChatMessage() {
+            const messages = chatDataByDay[currentChatDay];
+            if (!messages || chatMessageIndex >= messages.length) {
+                return;
+            }
+
+            const msg = messages[chatMessageIndex];
+            chatMessageIndex++;
+
+            if (msg.type === 'system') {
+                addSystemChatMessage(msg.text);
+                chatTimeout = setTimeout(processChatMessage, msg.delay || 2000);
+            } else if (msg.type === 'message') {
+                showTypingChatIndicator(msg.user, msg.avatar, msg.color);
+                chatTimeout = setTimeout(() => {
+                    removeTypingChatIndicator();
+                    addChatMessage(msg.user, msg.avatar, msg.color, msg.text, msg.time);
+                    chatTimeout = setTimeout(processChatMessage, 1000);
+                }, msg.delay || 2000);
+            }
+        }
+
+        function addSystemChatMessage(text) {
+            const messagesContainer = document.getElementById('liveChatMessages');
+            const systemMsg = document.createElement('div');
+            systemMsg.className = 'live-chat-system-message';
+            systemMsg.innerHTML = `<span>${text}</span>`;
+            messagesContainer.appendChild(systemMsg);
+            scrollChatToBottom();
+        }
+
+        function showTypingChatIndicator(user, avatar, color) {
+            const messagesContainer = document.getElementById('liveChatMessages');
+            const typing = document.createElement('div');
+            typing.className = 'live-typing-indicator';
+            typing.id = 'live-typing-indicator';
+            typing.innerHTML = `
+                <div class="live-chat-avatar avatar-${color}">${avatar}</div>
+                <div class="live-chat-message-content">
+                    <div class="live-chat-message-header">
+                        <span class="live-chat-username">${user}</span>
+                    </div>
+                    <div class="live-typing-bubble">
+                        <div class="live-typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(typing);
+            scrollChatToBottom();
+        }
+
+        function removeTypingChatIndicator() {
+            const typing = document.getElementById('live-typing-indicator');
+            if (typing) {
+                typing.remove();
+            }
+        }
+
+        function addChatMessage(user, avatar, color, text, time) {
+            const messagesContainer = document.getElementById('liveChatMessages');
+            const message = document.createElement('div');
+            message.className = 'live-chat-message';
+            message.innerHTML = `
+                <div class="live-chat-avatar avatar-${color}">${avatar}</div>
+                <div class="live-chat-message-content">
+                    <div class="live-chat-message-header">
+                        <span class="live-chat-username">${user}</span>
+                        <span class="live-chat-timestamp">${time}</span>
+                    </div>
+                    <div class="live-chat-bubble">${text}</div>
+                </div>
+            `;
+            messagesContainer.appendChild(message);
+            scrollChatToBottom();
+        }
+
+        function scrollChatToBottom() {
+            const messagesContainer = document.getElementById('liveChatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+
+        // Interactive Like System
+        let userLikes = {}; // Format: { 'postId': true/false }
+        let currentLikesModal = null;
+
+        function getPostId(username, day, postIndex) {
+            return `${username}_day${day}_post${postIndex}`;
+        }
+
+        function toggleLike(username, day, postIndex) {
+            const postId = getPostId(username, day, postIndex);
+            userLikes[postId] = !userLikes[postId];
+            
+            // Re-render timeline to update UI
+            renderTimeline();
+        }
+
+        function showLikesModal(username, day, postIndex) {
+            const profile = profiles.find(p => p.username === username);
+            if (!profile) return;
+            
+            const dayPosts = profile.postsByDay[day] || [];
+            const post = dayPosts[postIndex];
+            if (!post) return;
+            
+            const postId = getPostId(username, day, postIndex);
+            const allLikes = [...post.likes];
+            
+            // Add "you" if user liked it
+            if (userLikes[postId]) {
+                allLikes.unshift('Du');
+            }
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'likes-modal active';
+            modal.style.position = 'fixed';
+            modal.style.zIndex = '9999';
+            
+            const avatars = {
+                'Du': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%238134af"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle" fill="white"%3E😊%3C/text%3E%3C/svg%3E',
+                'leon_technik': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%2387CEEB"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E👨‍💻%3C/text%3E%3C/svg%3E',
+                'jonas_entertainer': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23FF6347"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E🎤%3C/text%3E%3C/svg%3E',
+                'emma_social': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%2398D8C8"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E📱%3C/text%3E%3C/svg%3E',
+                'sarah_foodie': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23FFB6C1"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E🍰%3C/text%3E%3C/svg%3E',
+                'tim_orga': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23F0E68C"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E📋%3C/text%3E%3C/svg%3E',
+                'mia_kreativ': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23FFE4E1"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E🎨%3C/text%3E%3C/svg%3E'
+            };
+            
+            const displayNames = {
+                'Du': 'Du',
+                'leon_technik': 'Leon Hoffmann',
+                'jonas_entertainer': 'Jonas Klein',
+                'emma_social': 'Emma Wagner',
+                'sarah_foodie': 'Sarah Schmidt',
+                'tim_orga': 'Tim Meyer',
+                'mia_kreativ': 'Mia Chen'
+            };
+            
+            modal.innerHTML = `
+                <div class="likes-modal-header">
+                    <span style="font-size: 16px;">Gefällt ${allLikes.length} ${allLikes.length === 1 ? 'Person' : 'Personen'}</span>
+                    <button class="likes-modal-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+                <div class="likes-modal-content">
+                    ${allLikes.map(user => `
+                        <div class="like-user">
+                            <img src="${avatars[user] || avatars['tim_orga']}" alt="${user}" class="like-user-avatar">
+                            <span class="like-user-name">${displayNames[user] || user}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            currentLikesModal = modal;
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function showCommentsModal(username, day, postIndex) {
+            const profile = profiles.find(p => p.username === username);
+            if (!profile) return;
+            
+            const dayPosts = profile.postsByDay[day] || [];
+            const post = dayPosts[postIndex];
+            if (!post || !post.comments) return;
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'likes-modal active';
+            modal.style.position = 'fixed';
+            modal.style.zIndex = '9999';
+            modal.style.width = '500px';
+            modal.style.maxWidth = '90%';
+            
+            const avatars = {
+                'leon_technik': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%2387CEEB"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E👨‍💻%3C/text%3E%3C/svg%3E',
+                'jonas_entertainer': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23FF6347"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E🎤%3C/text%3E%3C/svg%3E',
+                'emma_social': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%2398D8C8"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E📱%3C/text%3E%3C/svg%3E',
+                'sarah_foodie': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23FFB6C1"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E🍰%3C/text%3E%3C/svg%3E',
+                'tim_orga': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23F0E68C"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E📋%3C/text%3E%3C/svg%3E',
+                'mia_kreativ': 'data:image/svg+xml,%3Csvg width="120" height="120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="60" fill="%23FFE4E1"/%3E%3Ctext x="60" y="75" font-size="50" text-anchor="middle"%3E🎨%3C/text%3E%3C/svg%3E'
+            };
+            
+            const displayNames = {
+                'leon_technik': 'Leon',
+                'jonas_entertainer': 'Jonas',
+                'emma_social': 'Emma',
+                'sarah_foodie': 'Sarah',
+                'tim_orga': 'Tim',
+                'mia_kreativ': 'Mia'
+            };
+            
+            modal.innerHTML = `
+                <div class="likes-modal-header">
+                    <span style="font-size: 16px;">💬 Kommentare (${post.comments.length})</span>
+                    <button class="likes-modal-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                </div>
+                <div class="likes-modal-content" style="max-height: 400px;">
+                    ${post.comments.map(comment => {
+                        const reactions = comment.reactions || {likes: 0, emojis: []};
+                        return `
+                            <div style="padding: 15px 0; border-bottom: 1px solid #efefef;">
+                                <div style="display: flex; gap: 12px; margin-bottom: 8px;">
+                                    <img src="${avatars[comment.username] || avatars['tim_orga']}" alt="${comment.username}" style="width: 32px; height: 32px; border-radius: 50%;">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${displayNames[comment.username] || comment.username}</div>
+                                        <div style="font-size: 14px; line-height: 1.4;">${comment.text}</div>
+                                        ${reactions.likes > 0 || reactions.emojis.length > 0 ? `
+                                            <div style="display: flex; gap: 8px; margin-top: 8px; font-size: 12px; color: #8e8e8e;">
+                                                ${reactions.likes > 0 ? `<span>❤️ ${reactions.likes}</span>` : ''}
+                                                ${reactions.emojis.map(emoji => `<span>${emoji}</span>`).join(' ')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on background click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function getLikesDisplay(post, postId) {
+            const allLikes = [...post.likes];
+            if (userLikes[postId]) {
+                allLikes.unshift('Du');
+            }
+            
+            if (allLikes.length === 0) {
+                return 'Noch keine Likes';
+            }
+            
+            const displayNames = {
+                'Du': 'Du',
+                'leon_technik': 'Leon',
+                'jonas_entertainer': 'Jonas',
+                'emma_social': 'Emma',
+                'sarah_foodie': 'Sarah',
+                'tim_orga': 'Tim',
+                'mia_kreativ': 'Mia'
+            };
+            
+            if (allLikes.length === 1) {
+                return `Gefällt <strong>${displayNames[allLikes[0]] || allLikes[0]}</strong>`;
+            } else if (allLikes.length === 2) {
+                return `Gefällt <strong>${displayNames[allLikes[0]] || allLikes[0]}</strong> und <strong>${displayNames[allLikes[1]] || allLikes[1]}</strong>`;
+            } else {
+                return `Gefällt <strong>${displayNames[allLikes[0]] || allLikes[0]}</strong>, <strong>${displayNames[allLikes[1]] || allLikes[1]}</strong> und <a href="#" onclick="event.preventDefault(); showLikesModal('${post.username}', ${post.day}, ${post.index}); return false;" style="color: #262626; font-weight: 600;">${allLikes.length - 2} weiteren</a>`;
+            }
+        }
+
+        init();
+    </script>
+
+    <!-- Live Group Chat Modal -->
+    <div class="live-chat-modal" id="liveChatModal">
+        <div class="live-chat-container">
+            <div class="live-chat-header">
+                <button class="close-live-chat" onclick="closeLiveChat()">×</button>
+                <div class="live-chat-header-icon">🎪</div>
+                <div class="live-chat-header-info">
+                    <h3>Schulfest-Orga-Team</h3>
+                    <p id="liveChatDay">Tag 1 - Gruppenchat</p>
+                </div>
+            </div>
+            <div class="live-chat-messages" id="liveChatMessages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+            <div class="live-chat-footer">
+                <button class="continue-btn" onclick="continueToDayAfterChat()">Weiter zum nächsten Tag →</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
