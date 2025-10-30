@@ -793,7 +793,7 @@ function init() {
 
         function continueAfterFlip() {
             // Nach Situations-Flip kommt Communication Minigame an Tag 4
-            showCommunicationMinigame(currentDay);
+            showCommunicationMinigame(currentDay + 1);
         }
 
         // ==========================================
