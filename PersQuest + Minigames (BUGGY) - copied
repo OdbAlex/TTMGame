@@ -1703,12 +1703,9 @@ Sei warmherzig und lehrreich, aber ehrlich. Keine Auflistungen oder Struktur-Mar
 
         function continueToDayAfterChat() {
             closeLiveChat();
-            // currentDay wurde bereits von nextDay() erhöht
-            // Wir müssen nur die Ansicht aktualisieren
-            renderDaySelector();
-            renderTimeline();
-            updateNextDayButton();
-            window.scrollTo(0, 0);
+    
+    // Gehe zum nächsten Tag
+    nextDay();
         }
 
         function processChatMessage() {
